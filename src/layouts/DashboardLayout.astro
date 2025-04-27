@@ -1,0 +1,77 @@
+import DashboardHeader from '../components/dashboard/DashboardHeader';
+import DashboardOverview from '../components/dashboard/DashboardOverview';
+import DashboardFooter from '../components/dashboard/DashboardFooter';
+
+// Define props interface
+interface Props {
+  user: {
+    id: string;
+    email: string;
+    name?: string;
+    avatarUrl?: string;
+    createdAt: Date;
+  };
+}
+
+// Get props
+const { user } = Astro.props;
+
+// Define dashboard tiles
+const dashboardTiles = [
+  {
+    title: 'Generowanie fiszek',
+    description: 'Wygeneruj nowe fiszki z tekstu lub PDF',
+    icon: 'MagicWand',
+    linkTo: '/flashcards/generate',
+    color: 'bg-blue-100 dark:bg-blue-950'
+  },
+  {
+    title: 'Moje fiszki',
+    description: 'Przeglądaj i zarządzaj swoimi fiszkami',
+    icon: 'Cards',
+    linkTo: '/flashcards',
+    count: 0, // Will be fetched from API later
+    color: 'bg-green-100 dark:bg-green-950'
+  },
+  {
+    title: 'Sesje powtórek',
+    description: 'Rozpocznij nową sesję powtórek',
+    icon: 'Clock',
+    linkTo: '/review',
+    count: 0, // Will be fetched from API later
+    color: 'bg-purple-100 dark:bg-purple-950'
+  },
+  {
+    title: 'Ustawienia',
+    description: 'Zarządzaj swoim kontem i ustawieniami',
+    icon: 'Settings',
+    linkTo: '/settings',
+    color: 'bg-gray-100 dark:bg-gray-800'
+  }
+];
+
+// Define logout handler
+const handleLogout = async () => {
+  // Will be implemented with Supabase auth later
+  window.location.href = '/login';
+};
+
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10xCards - Dashboard</title>
+  </head>
+  <body class="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+      <DashboardHeader user={user} client:load />
+      
+      <main class="my-8">
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Dashboard</h1>
+        <DashboardOverview tiles={dashboardTiles} client:load />
+      </main>
+      
+      <DashboardFooter client:load />
+    </div>
+  </body>
+</html> 
