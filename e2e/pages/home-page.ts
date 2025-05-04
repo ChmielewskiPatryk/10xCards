@@ -6,10 +6,10 @@ export class HomePage {
   
   constructor(page: Page) {
     this.page = page;
-    this.pageTitle = page.getByRole('heading', { level: 1 });
+    this.pageTitle = page.getByRole('heading', { name: /Logowanie/i });
   }
 
   async goto() {
-    await this.page.goto('/');
+    await this.page.goto('/auth/login');
   }
 } 

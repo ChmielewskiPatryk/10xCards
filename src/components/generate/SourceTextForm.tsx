@@ -134,7 +134,7 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
               </p>
               
               {errors.sourceText && (
-                <div className="flex items-center text-red-500 text-sm" id="sourceText-error">
+                <div className="flex items-center text-red-500 text-sm" id="sourceText-error" role="alert">
                   <AlertCircle className="h-4 w-4 mr-1" />
                   {errors.sourceText}
                 </div>
@@ -160,7 +160,7 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
             />
             
             {errors.maxFlashcards && (
-              <div className="flex items-center text-red-500 text-sm" id="maxFlashcards-error">
+              <div className="flex items-center text-red-500 text-sm" id="maxFlashcards-error" role="alert">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.maxFlashcards}
               </div>

@@ -83,7 +83,7 @@ describe('FlashcardService.deleteFlashcard', () => {
     const eqIdDeleteMock = vi.fn().mockReturnValue({ eq: eqUserIdDeleteMock });
     
     // Set up the from() mock to return different chains based on the operation
-    (supabaseClient.from as any).mockImplementation((table) => {
+    (supabaseClient.from as any).mockImplementation((table: string) => {
       expect(table).toBe('flashcards');
       return {
         select: selectMock,
@@ -146,7 +146,7 @@ describe('FlashcardService.deleteFlashcard', () => {
     
     // Set up the from() mock with different implementations
     let callCount = 0;
-    (supabaseClient.from as any).mockImplementation((table) => {
+    (supabaseClient.from as any).mockImplementation((table: string) => {
       expect(table).toBe('flashcards');
       callCount++;
       

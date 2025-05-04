@@ -263,7 +263,7 @@ describe('useGenerateFlashcards', () => {
 
     // Sprawdzenie czy fetch został wywołany z odpowiednimi parametrami
     expect(mockFetch).toHaveBeenCalledWith(
-      '/api/flashcards',
+      '/api/flashcards/saveFlashcards',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

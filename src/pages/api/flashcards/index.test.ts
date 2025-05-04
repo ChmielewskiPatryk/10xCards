@@ -3,6 +3,9 @@ import { GET, getFlashcardsQuerySchema, POST } from '.';
 import { flashcardService } from '../../../lib/services/flashcard-service';
 import { loggerService } from '../../../lib/services/logger-service';
 
+// Constants for testing
+const DEFAULT_USER_ID = '00000000-0000-0000-0000-000000000000';
+
 // Mock database client
 vi.mock('../../../db/supabase.client', () => ({
   DEFAULT_USER_ID: '00000000-0000-0000-0000-000000000000',
@@ -72,7 +75,12 @@ describe('GET /api/flashcards', () => {
   
   it('should return 400 for invalid query parameters', async () => {
     const request = new MockRequest('http://localhost/api/flashcards?page=-1') as unknown as Request;
-    const context = { request, locals: {} };
+    const context = { 
+      request, 
+      locals: { 
+        user: { id: DEFAULT_USER_ID } 
+      } 
+    };
     const response = await GET(context as any);
     
     expect(response.status).toBe(400);
@@ -107,19 +115,26 @@ describe('GET /api/flashcards', () => {
     (flashcardService.getUserFlashcards as any).mockResolvedValue(mockFlashcards);
     
     const request = new MockRequest('http://localhost/api/flashcards') as unknown as Request;
-    const context = { request, locals: {} };
+    const context = { 
+      request, 
+      locals: {
+        user: { id: DEFAULT_USER_ID },
+        supabase: {} // Add mock Supabase client
+      }
+    };
     const response = await GET(context as any);
     const responseData = await response.json();
     
     expect(response.status).toBe(200);
     expect(flashcardService.getUserFlashcards).toHaveBeenCalledWith(
-      expect.any(String),
+      DEFAULT_USER_ID,
       expect.objectContaining({
         page: 1,
         limit: 20,
         sort: 'created_at',
         order: 'desc'
-      })
+      }),
+      expect.anything() // For the supabase client parameter
     );
     expect(responseData).toEqual(mockFlashcards);
   });
@@ -128,7 +143,13 @@ describe('GET /api/flashcards', () => {
     (flashcardService.getUserFlashcards as any).mockRejectedValue(new Error('Database error'));
     
     const request = new MockRequest('http://localhost/api/flashcards') as unknown as Request;
-    const context = { request, locals: {} };
+    const context = { 
+      request, 
+      locals: {
+        user: { id: DEFAULT_USER_ID },
+        supabase: {}
+      }
+    };
     const response = await GET(context as any);
     
     expect(response.status).toBe(500);
@@ -154,7 +175,12 @@ describe('POST /api/flashcards', () => {
   it('should return 400 for invalid request body', async () => {
     const invalidBody = { front_content: '', back_content: 'A' };
     const request = new MockRequest(invalidBody) as unknown as Request;
-    const context = { request, locals: {} };
+    const context = { 
+      request, 
+      locals: {
+        user: { id: DEFAULT_USER_ID }
+      }
+    };
     const response = await POST(context as any);
     const data = await response.json();
     expect(response.status).toBe(400);
@@ -180,13 +206,20 @@ describe('POST /api/flashcards', () => {
     (flashcardService.createFlashcard as any).mockResolvedValue(newFlashcard);
     const validBody = { front_content: 'Front', back_content: 'Back' };
     const request = new MockRequest(validBody) as unknown as Request;
-    const context = { request, locals: {} };
+    const context = { 
+      request, 
+      locals: {
+        user: { id: DEFAULT_USER_ID },
+        supabase: {} // Add mock Supabase client
+      }
+    };
     const response = await POST(context as any);
     const data = await response.json();
     expect(response.status).toBe(201);
     expect(flashcardService.createFlashcard).toHaveBeenCalledWith(
       { front_content: 'Front', back_content: 'Back' },
-      expect.any(String)
+      DEFAULT_USER_ID,
+      expect.anything() // For the supabase client parameter
     );
     expect(data).toEqual(newFlashcard);
   });
@@ -195,7 +228,13 @@ describe('POST /api/flashcards', () => {
     (flashcardService.createFlashcard as any).mockRejectedValue(new Error('DBError'));
     const validBody = { front_content: 'Front', back_content: 'Back' };
     const request = new MockRequest(validBody) as unknown as Request;
-    const context = { request, locals: {} };
+    const context = { 
+      request, 
+      locals: {
+        user: { id: DEFAULT_USER_ID },
+        supabase: {}
+      }
+    };
     const response = await POST(context as any);
     expect(response.status).toBe(500);
     expect(loggerService.logError).toHaveBeenCalledWith(

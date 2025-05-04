@@ -1,0 +1,16 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Counter component > demonstrates a snapshot 1`] = `
+<div>
+  <div>
+    <span
+      data-testid="count"
+    >
+      0
+    </span>
+    <button>
+      Increment
+    </button>
+  </div>
+</div>
+`;

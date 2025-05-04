@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { supabaseClient } from '../../../db/supabase.client';
-import type { AIGenerationRequest } from '../../../types';
+import type { GenerateFlashcardsCommand, FlashcardCandidate } from '../../../types';
 import { aiService } from '../../../lib/services/ai-service';
 import { loggerService } from '../../../lib/services/logger-service';
 
@@ -34,7 +34,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
   
   try {
     // Parse and validate request body
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (jsonError) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON in request body' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const validationResult = generateFlashcardsSchema.safeParse(body);
     
     if (!validationResult.success) {
@@ -50,17 +59,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     
-    // Create generation request
-    const request: AIGenerationRequest = {
-      content: validationResult.data.content,
-    };
+    // Prepare the flashcard generation schema
+    const flashcardSchema = z.array(z.object({
+      front_content: z.string(),
+      back_content: z.string(),
+      ai_metadata: z.object({
+        model: z.string(),
+        generation_time: z.string(),
+        parameters: z.record(z.unknown())
+      })
+    }));
     
-    // Generate flashcards using AI service
-    const generatedFlashcards = await aiService.generateFlashcards(request, userId);
+    // Extract structured data using AI
+    const content = validationResult.data.content;
+    const instructions = "Generate a set of flashcards from the provided text.";
+    const generatedFlashcards = await aiService.extractData<FlashcardCandidate[]>(
+      flashcardSchema,
+      content,
+      instructions
+    );
     
     // Return response
     return new Response(
-      JSON.stringify(generatedFlashcards),
+      JSON.stringify({ flashcards_proposals: generatedFlashcards }),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {

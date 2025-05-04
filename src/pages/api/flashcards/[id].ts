@@ -32,6 +32,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     // Validate flashcard ID
     const idValidation = uuidSchema.safeParse(params.id);
     if (!idValidation.success) {
+      loggerService.logError(userId, 'VALIDATION_FAILED', 'Invalid flashcard id');
       return new Response(
         JSON.stringify({ error: 'Invalid flashcard ID format' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -54,12 +55,16 @@ export const GET: APIRoute = async ({ params, locals }) => {
     // Determine the appropriate error status and message
     let status = 500;
     let errorMessage = 'An internal server error occurred';
+    let errorCode = 'INTERNAL_ERROR';
     
     if (error instanceof NotFoundError) {
       status = 404;
       errorMessage = 'Flashcard not found';
+      errorCode = 'NOT_FOUND';
+      loggerService.logError(userId, errorCode, 'Not found');
     } else if (error instanceof Error) {
       errorMessage = error.message;
+      loggerService.logError(userId, errorCode, error.message);
     }
     
     return new Response(
@@ -180,6 +185,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     // Validate flashcard ID
     const idValidation = uuidSchema.safeParse(params.id);
     if (!idValidation.success) {
+      loggerService.logError(userId, 'VALIDATION_FAILED', 'Invalid flashcard id');
       return new Response(
         JSON.stringify({ error: 'Invalid flashcard ID format' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -202,12 +208,16 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     // Determine the appropriate error status and message
     let status = 500;
     let errorMessage = 'An internal server error occurred';
+    let errorCode = 'INTERNAL_ERROR';
     
     if (error instanceof NotFoundError) {
       status = 404;
       errorMessage = 'Flashcard not found';
+      errorCode = 'NOT_FOUND';
+      loggerService.logError(userId, errorCode, 'Flashcard not found');
     } else if (error instanceof Error) {
       errorMessage = error.message;
+      loggerService.logError(userId, errorCode, error.message);
     }
     
     return new Response(

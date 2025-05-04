@@ -40,17 +40,21 @@ vi.mock('../../../lib/services/logger-service', () => ({
 
 describe('GET /api/flashcards/:id', () => {
   const validUuid = '11111111-1111-1111-1111-111111111111';
+  const mockLocals = { user: { id: DEFAULT_USER_ID } };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should return 400 for invalid UUID parameter', async () => {
-    const response = await GET({ params: { id: 'invalid-uuid' } } as any);
+    const response = await GET({ 
+      params: { id: 'invalid-uuid' },
+      locals: mockLocals 
+    } as any);
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Invalid flashcard id');
+    expect(body.error).toBe('Invalid flashcard ID format');
     expect(loggerService.logError).toHaveBeenCalledWith(
       DEFAULT_USER_ID,
       'VALIDATION_FAILED',
@@ -70,7 +74,10 @@ describe('GET /api/flashcards/:id', () => {
     };
     (flashcardService.getById as any).mockResolvedValue(mockFlashcard);
 
-    const response = await GET({ params: { id: validUuid } } as any);
+    const response = await GET({ 
+      params: { id: validUuid },
+      locals: mockLocals 
+    } as any);
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -79,14 +86,17 @@ describe('GET /api/flashcards/:id', () => {
   });
 
   it('should return 404 when flashcard is not found', async () => {
-    const error = new NotFoundError('Not found');
+    const error = new NotFoundError('Flashcard not found');
     (flashcardService.getById as any).mockRejectedValue(error);
 
-    const response = await GET({ params: { id: validUuid } } as any);
+    const response = await GET({ 
+      params: { id: validUuid },
+      locals: mockLocals 
+    } as any);
     const body = await response.json();
 
     expect(response.status).toBe(404);
-    expect(body.error).toBe('Not found');
+    expect(body.error).toBe('Flashcard not found');
     expect(loggerService.logError).toHaveBeenCalledWith(
       DEFAULT_USER_ID,
       'NOT_FOUND',
@@ -97,7 +107,10 @@ describe('GET /api/flashcards/:id', () => {
   it('should return 500 on generic errors', async () => {
     (flashcardService.getById as any).mockRejectedValue(new Error('DB error'));
 
-    const response = await GET({ params: { id: validUuid } } as any);
+    const response = await GET({ 
+      params: { id: validUuid },
+      locals: mockLocals 
+    } as any);
     const body = await response.json();
 
     expect(response.status).toBe(500);
@@ -112,7 +125,7 @@ describe('GET /api/flashcards/:id', () => {
 
 describe('DELETE /api/flashcards/:id', () => {
   const validUuid = '11111111-1111-1111-1111-111111111111';
-  const mockLocals = { supabase: {} };
+  const mockLocals = { user: { id: DEFAULT_USER_ID } };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -126,7 +139,7 @@ describe('DELETE /api/flashcards/:id', () => {
     const body = await response.json();
 
     expect(response.status).toBe(400);
-    expect(body.error).toBe('Invalid flashcard id');
+    expect(body.error).toBe('Invalid flashcard ID format');
     expect(loggerService.logError).toHaveBeenCalledWith(
       DEFAULT_USER_ID,
       'VALIDATION_FAILED',
@@ -135,17 +148,18 @@ describe('DELETE /api/flashcards/:id', () => {
     expect(flashcardService.deleteFlashcard).not.toHaveBeenCalled();
   });
 
-  it('should return 204 when flashcard is successfully deleted', async () => {
+  it('should return 200 when flashcard is successfully deleted', async () => {
     (flashcardService.deleteFlashcard as any).mockResolvedValue(undefined);
 
     const response = await DELETE({ 
       params: { id: validUuid },
       locals: mockLocals
     } as any);
+    const body = await response.json();
 
-    expect(response.status).toBe(204);
-    expect(response.body).toBeNull();
-    expect(flashcardService.deleteFlashcard).toHaveBeenCalledWith(validUuid, DEFAULT_USER_ID);
+    expect(response.status).toBe(200);
+    expect(body.message).toBe('Flashcard deleted successfully');
+    expect(flashcardService.deleteFlashcard).toHaveBeenCalledWith(validUuid, DEFAULT_USER_ID, undefined);
     expect(loggerService.logError).not.toHaveBeenCalled();
   });
 
@@ -160,8 +174,7 @@ describe('DELETE /api/flashcards/:id', () => {
     const body = await response.json();
 
     expect(response.status).toBe(404);
-    expect(body.error).toBe('Not Found');
-    expect(body.message).toBe('Flashcard not found');
+    expect(body.error).toBe('Flashcard not found');
     expect(loggerService.logError).toHaveBeenCalledWith(
       DEFAULT_USER_ID,
       'NOT_FOUND',
@@ -179,8 +192,7 @@ describe('DELETE /api/flashcards/:id', () => {
     const body = await response.json();
 
     expect(response.status).toBe(500);
-    expect(body.error).toBe('Internal Server Error');
-    expect(body.message).toBe('DB error');
+    expect(body.error).toBe('DB error');
     expect(loggerService.logError).toHaveBeenCalledWith(
       DEFAULT_USER_ID,
       'INTERNAL_ERROR',

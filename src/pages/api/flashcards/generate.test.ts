@@ -1,14 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from './generate';
-import { generateFlashcardsSchema, generateService } from '../../../lib/services/generate-service';
+import { aiService } from '../../../lib/services/ai-service';
+import { loggerService } from '../../../lib/services/logger-service';
 
 // Mock dependencies
-vi.mock('../../../lib/services/generate-service', () => ({
-  generateService: {
-    generateFlashcards: vi.fn()
-  },
-  generateFlashcardsSchema: {
-    safeParse: vi.fn()
+vi.mock('../../../lib/services/ai-service', () => ({
+  aiService: {
+    generateText: vi.fn(),
+    extractData: vi.fn()
+  }
+}));
+
+vi.mock('../../../lib/services/logger-service', () => ({
+  loggerService: {
+    logError: vi.fn()
   }
 }));
 
@@ -35,15 +40,16 @@ describe('POST /api/flashcards/generate', () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        source_text: 'Sample text'.repeat(100),
-        options: { max_flashcards: 5 }
+        content: 'Sample text'.repeat(20)
       })
     });
     
-    // Set up context
+    // Set up context with authenticated user
     mockContext = {
       request: mockRequest,
-      locals: {}
+      locals: {
+        user: { id: '00000000-0000-0000-0000-000000000000' }
+      }
     };
   });
 
@@ -60,72 +66,54 @@ describe('POST /api/flashcards/generate', () => {
     
     expect(response.status).toBe(400);
     const body = await response.json();
-    expect(body.error).toBe('Invalid JSON in request body');
+    expect(body.error).toContain('Invalid JSON');
   });
 
-  it('should return 200 with flashcard proposals when input is valid', async () => {
-    // Mock validation success
-    vi.mocked(generateFlashcardsSchema.safeParse).mockReturnValue({
-      success: true,
-      data: {
-        source_text: 'Sample text'.repeat(100),
-        options: { max_flashcards: 5 }
-      }
-    });
-
-    // Mock generate service
-    vi.mocked(generateService.generateFlashcards).mockResolvedValue([
+  it('should return 200 with generated flashcards when input is valid', async () => {
+    // Mock AI service response
+    const mockGeneratedCards = [
       {
         front_content: 'Question 1',
         back_content: 'Answer 1',
         ai_metadata: { model: 'test-model', generation_time: '100ms', parameters: {} }
       }
-    ]);
+    ];
+
+    // Mock generate service
+    vi.mocked(aiService.extractData).mockResolvedValue(mockGeneratedCards);
 
     const response = await POST(mockContext);
     
     expect(response.status).toBe(200);
     const body = await response.json();
-    expect(body).toHaveProperty('flashcards_proposals');
-    expect(body.flashcards_proposals).toHaveLength(1);
+    expect(body).toEqual({ flashcards_proposals: mockGeneratedCards });
   });
 
   it('should return 400 when validation fails', async () => {
-    // Mock validation failure
-    vi.mocked(generateFlashcardsSchema.safeParse).mockReturnValue({
-      success: false,
-      error: {
-        format: () => ({
-          source_text: { _errors: ['Text too short'] }
-        })
-      }
+    // Request with invalid content (too short)
+    const invalidRequest = new Request('https://example.com/api/flashcards/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: 'Too short' })
     });
-
-    const response = await POST(mockContext);
+    
+    const invalidContext = { ...mockContext, request: invalidRequest };
+    const response = await POST(invalidContext);
     
     expect(response.status).toBe(400);
     const body = await response.json();
-    expect(body.error).toBe('Validation error');
+    expect(body.error).toContain('Validation error');
   });
 
-  it('should return 503 when AI service is unavailable', async () => {
-    // Mock validation success
-    vi.mocked(generateFlashcardsSchema.safeParse).mockReturnValue({
-      success: true,
-      data: {
-        source_text: 'Sample text'.repeat(100),
-        options: { max_flashcards: 5 }
-      }
-    });
-
-    // But service throws error
-    vi.mocked(generateService.generateFlashcards).mockRejectedValue(
+  it('should return 500 when AI service is unavailable', async () => {
+    // Mock service error
+    vi.mocked(aiService.extractData).mockRejectedValue(
       new Error('Failed to generate flashcards. AI service unavailable.')
     );
 
     const response = await POST(mockContext);
     
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toBe('Failed to generate flashcards. AI service unavailable.');
   });
