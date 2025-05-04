@@ -15,6 +15,11 @@ AI - Komunikacja z modelami przez usługę Openrouter.ai:
 - Dostęp do szerokiej gamy modeli (OpenAI, Anthropic, Google i wiele innych), które pozwolą nam znaleźć rozwiązanie zapewniające wysoką efektywność i niskie koszta
 - Pozwala na ustawianie limitów finansowych na klucze API
 
+Testing - Kompletne rozwiązania do testów:
+- Testy jednostkowe: Vitest i React Testing Library do testowania komponentów i logiki
+- Testy E2E: Playwright do kompleksowego testowania aplikacji w różnych przeglądarkach
+- Dodatkowe narzędzia: msw do mockowania API, Lighthouse do testów wydajności i dostępności
+
 CI/CD i Hosting:
-- Github Actions do tworzenia pipeline’ów CI/CD
+- Github Actions do tworzenia pipeline'ów CI/CD
 - DigitalOcean do hostowania aplikacji za pośrednictwem obrazu docker
