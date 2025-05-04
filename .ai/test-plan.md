@@ -114,18 +114,16 @@ Plan obejmuje testowanie:
 4. Zatwierdzanie wybranych fiszek
 5. Obsługa błędów API AI
 
-### 4.4 Sesje nauki
+### 4.4 Sesje nauki (opcjonalnie)
 1. Rozpoczynanie nowej sesji
 2. Przechodzenie przez fiszki w sesji
 3. Ocenianie znajomości materiału
 4. Zakończenie sesji i zapisanie wyników
 5. Przeglądanie historii sesji
 
-### 4.5 Panel użytkownika
+### 4.5 Panel użytkownika (opcjonalnie)
 1. Przeglądanie statystyk nauki
 2. Zmiana ustawień konta
-3. Eksport i import fiszek
-4. Zarządzanie subskrypcją (jeśli dotyczy)
 
 ## 5. Środowisko testowe
 

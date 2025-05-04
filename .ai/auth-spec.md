@@ -121,3 +121,9 @@
 - Wymagane znaki specjalne
 - Wymagane cyfry
 - Wymagane wielkie litery
+
+### 3.3 Dodatkowe informacje
+
+#### Diagram autoryzacji : @auth-diagram.md
+#### Diagram przepływu : @juroney-diagram.md
+#### Diagram UI: @ui-diagram.md
