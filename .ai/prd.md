@@ -152,6 +152,19 @@ Kryteria akceptacji:
   3. Użytkownik jest przekierowywany do strony logowania
   4. Dane sesji są czyszczone po wylogowaniu
 
+## US-010: Bezpieczny dostęp i uwierzytelnianie
+- Tytuł: Bezpieczny dostęp
+- Opis: Jako użytkownik chcę mieć możliwość rejestracji i logowania się do systemu w sposób zapewniający bezpieczeństwo moich danych.
+- Kryteria akceptacji:
+  - Logowanie i rejestracja odbywają się na dedykowanych stronach.
+  - Logowanie wymaga podania adresu email i hasła.
+  - Rejestracja wymaga podania adresu email, hasła i potwierdzenia hasła.
+  - Użytkownik MOŻE korzystać z rejestracji oraz logowania "ad-hoc" bez logowania się do systemu.
+  - Użytkownik NIE MOŻE korzystać z pozostałych funkcji bez logowania się do systemu.
+  - Użytkownik może się wylogować z systemu poprzez przycisk w prawym górnym rogu w głównym @Layout.astro.
+  - Nie korzystamy z zewnętrznych serwisów logowania (np. Google, GitHub).
+  - Odzyskiwanie hasła powinno być możliwe.
+
 ## 6. Metryki sukcesu
 1. Efektywność generowania fiszek:
    - 75% wygenerowanych przez AI fiszek jest akceptowanych przez użytkownika.

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabaseClient } from '../../db/supabase.client';
 import type { ApproveFlashcardsCommand, ApproveFlashcardsResponse, Flashcard, FlashcardCandidate, PaginatedResponse, CreateFlashcardCommand } from '../../types';
 import type { Database, Json } from '../../db/database.types';
@@ -22,12 +23,15 @@ export class FlashcardService {
    * Approves and saves flashcards to the database
    * @param command Command containing flashcards to approve
    * @param userId ID of the user approving flashcards
+   * @param client Optional custom Supabase client with auth context
    * @returns Response with approved flashcards and count
    */
   async approveFlashcards(
     command: ApproveFlashcardsCommand, 
-    userId: string
+    userId: string,
+    client?: SupabaseClient<Database>
   ): Promise<ApproveFlashcardsResponse> {
+    const supabase = client || supabaseClient;
     const { flashcards } = command;
     
     // Process each flashcard to determine source
@@ -64,7 +68,7 @@ export class FlashcardService {
       
       try {
         // Start a transaction for each batch
-        const { data: insertedBatch, error } = await supabaseClient
+        const { data: insertedBatch, error } = await supabase
           .from('flashcards')
           .insert(batch)
           .select('id, front_content, back_content, source, ai_metadata, created_at, updated_at');
@@ -146,19 +150,22 @@ export class FlashcardService {
    * Retrieves user's flashcards with filtering, sorting, and pagination
    * @param userId ID of the user
    * @param params Query parameters for filtering, sorting, and pagination
+   * @param client Optional custom Supabase client with auth context
    * @returns Paginated list of user's flashcards
    */
   async getUserFlashcards(
     userId: string,
-    params: GetFlashcardsQueryParams
+    params: GetFlashcardsQueryParams,
+    client?: SupabaseClient<Database>
   ): Promise<PaginatedResponse<Flashcard>> {
+    const supabase = client || supabaseClient;
     const { page, limit, sort, order, source } = params;
     
     // Calculate pagination values
     const offset = (page - 1) * limit;
     
     // Build the query
-    let query = supabaseClient
+    let query = supabase
       .from('flashcards')
       .select('id, front_content, back_content, source, ai_metadata, created_at, updated_at', { count: 'exact' })
       .eq('user_id', userId)
@@ -193,8 +200,17 @@ export class FlashcardService {
     };
   }
 
-  async getById(userId: string, id: string): Promise<Flashcard> {
-    const { data, error } = await supabaseClient
+  /**
+   * Retrieves a single flashcard by its ID
+   * @param userId ID of the user
+   * @param id ID of the flashcard
+   * @param client Optional custom Supabase client with auth context
+   * @returns Flashcard if found
+   * @throws NotFoundError if flashcard not found
+   */
+  async getById(userId: string, id: string, client?: SupabaseClient<Database>): Promise<Flashcard> {
+    const supabase = client || supabaseClient;
+    const { data, error } = await supabase
       .from('flashcards')
       .select('id, front_content, back_content, source, ai_metadata, created_at, updated_at')
       .eq('user_id', userId)
@@ -220,14 +236,18 @@ export class FlashcardService {
    * Creates a new flashcard in the database
    * @param command CreateFlashcardCommand containing front and back content
    * @param userId ID of the user creating the flashcard
+   * @param client Optional custom Supabase client with auth context
+   * @returns The created flashcard
    */
   async createFlashcard(
     command: CreateFlashcardCommand,
-    userId: string
+    userId: string,
+    client?: SupabaseClient<Database>
   ): Promise<Flashcard> {
+    const supabase = client || supabaseClient;
     const { front_content, back_content } = command;
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from('flashcards')
         .insert([{ front_content, back_content, user_id: userId }])
         .select('id, front_content, back_content, source, ai_metadata, created_at, updated_at')
@@ -243,15 +263,77 @@ export class FlashcardService {
   }
 
   /**
+   * Updates an existing flashcard
+   * @param id ID of the flashcard to update
+   * @param updates Fields to update
+   * @param userId ID of the user who owns the flashcard
+   * @param client Optional custom Supabase client with auth context
+   * @returns The updated flashcard
+   * @throws NotFoundError if flashcard not found
+   */
+  async updateFlashcard(
+    id: string,
+    updates: { front_content?: string; back_content?: string },
+    userId: string,
+    client?: SupabaseClient<Database>
+  ): Promise<Flashcard> {
+    const supabase = client || supabaseClient;
+    try {
+      // First check if the flashcard exists and belongs to the user
+      const existingFlashcard = await this.getById(userId, id, supabase);
+      
+      // Determine if this is an AI-generated flashcard being modified
+      const isAiFlashcard = existingFlashcard.source === 'ai';
+      const isContentModified = 
+        (updates.front_content && existingFlashcard.front_content !== updates.front_content) || 
+        (updates.back_content && existingFlashcard.back_content !== updates.back_content);
+      
+      // Set source to 'semi_ai' if this is an AI flashcard being modified
+      const source = (isAiFlashcard && isContentModified) ? 'semi_ai' : existingFlashcard.source;
+      
+      // Update the flashcard
+      const { data, error } = await supabase
+        .from('flashcards')
+        .update({
+          ...updates,
+          source,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id)
+        .eq('user_id', userId)
+        .select('id, front_content, back_content, source, ai_metadata, created_at, updated_at')
+        .single();
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (!data) {
+        throw new NotFoundError();
+      }
+      
+      return data as Flashcard;
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      console.error('Error updating flashcard:', error);
+      throw new Error(`Failed to update flashcard: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
    * Deletes a flashcard from the database
    * @param id ID of the flashcard to delete
    * @param userId ID of the user who owns the flashcard
+   * @param client Optional custom Supabase client with auth context
    * @throws NotFoundError if flashcard does not exist or does not belong to the user
    */
-  async deleteFlashcard(id: string, userId: string): Promise<void> {
+  async deleteFlashcard(id: string, userId: string, client?: SupabaseClient<Database>): Promise<void> {
+    const supabase = client || supabaseClient;
     try {
       // First check if the flashcard exists and belongs to the user
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from('flashcards')
         .select('id')
         .eq('id', id)
@@ -271,7 +353,7 @@ export class FlashcardService {
       }
 
       // If the flashcard exists and belongs to the user, delete it
-      const { error: deleteError } = await supabaseClient
+      const { error: deleteError } = await supabase
         .from('flashcards')
         .delete()
         .eq('id', id)

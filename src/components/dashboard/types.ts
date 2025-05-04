@@ -24,6 +24,7 @@ export interface DashboardOverviewProps {
 export interface UserInfoProps {
   user: User;
   onLogout: () => void;
+  isLoggingOut?: boolean;
 }
 
 export interface DashboardHeaderProps {

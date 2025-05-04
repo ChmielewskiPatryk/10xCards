@@ -1,34 +1,11 @@
 -- Migration: Initial Schema Creation
 -- Description: Creates the initial database schema for 10xCards application
--- Tables: users, flashcards, flashcard_reviews, study_sessions, session_reviews
+-- Tables: flashcards, flashcard_reviews, study_sessions, session_reviews, system_logs
 -- Author: System
 -- Date: 2024-03-20
 
 -- Enable UUID extension if not already enabled
 create extension if not exists "uuid-ossp";
-
--- Create users table
-create table users (
-    id uuid primary key default gen_random_uuid(),
-    email text not null unique check (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    created_at timestamptz not null default now(),
-    updated_at timestamptz not null default now()
-);
-
--- Create updated_at trigger function
-create or replace function update_updated_at()
-returns trigger as $$
-begin
-    new.updated_at = now();
-    return new;
-end;
-$$ language plpgsql;
-
--- Create trigger for users table
-create trigger update_users_updated_at
-    before update on users
-    for each row
-    execute function update_updated_at();
 
 -- Create flashcard source enum
 create type flashcard_source as enum ('manual', 'ai', 'semi_ai');
@@ -36,7 +13,7 @@ create type flashcard_source as enum ('manual', 'ai', 'semi_ai');
 -- Create flashcards table
 create table flashcards (
     id uuid primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
+    user_id uuid not null references auth.users(id) on delete cascade,
     front_content text not null check (char_length(front_content) <= 200),
     back_content text not null check (char_length(back_content) <= 200),
     source flashcard_source not null default 'manual',
@@ -53,6 +30,15 @@ create table flashcards (
 
 -- Create index on flashcards
 create index flashcards_user_id_idx on flashcards(user_id);
+
+-- Create trigger function for updating updated_at
+create or replace function update_updated_at()
+returns trigger as $$
+begin
+    new.updated_at = now();
+    return new;
+end;
+$$ language plpgsql;
 
 -- Create trigger for flashcards table
 create trigger update_flashcards_updated_at
@@ -97,7 +83,7 @@ create index flashcard_reviews_next_review_date_idx on flashcard_reviews(next_re
 -- Create study_sessions table
 create table study_sessions (
     id uuid primary key default gen_random_uuid(),
-    user_id uuid not null references users(id) on delete cascade,
+    user_id uuid not null references auth.users(id) on delete cascade,
     start_time timestamptz not null default now(),
     end_time timestamptz,
     cards_reviewed integer not null default 0,
@@ -123,21 +109,27 @@ create table session_reviews (
 create index session_reviews_study_session_id_idx on session_reviews(study_session_id);
 create index session_reviews_flashcard_id_idx on session_reviews(flashcard_id);
 
+-- Create system_logs table
+create table system_logs (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users(id) on delete set null,
+    error_code varchar(50) not null,
+    error_message text not null,
+    model varchar(100),
+    created_at timestamptz not null default now()
+);
+
+-- Create indexes for system_logs
+create index system_logs_user_id_idx on system_logs(user_id);
+create index system_logs_error_code_idx on system_logs(error_code);
+create index system_logs_created_at_idx on system_logs(created_at);
+
 -- Enable Row Level Security
-alter table users enable row level security;
 alter table flashcards enable row level security;
 alter table flashcard_reviews enable row level security;
 alter table study_sessions enable row level security;
 alter table session_reviews enable row level security;
-
--- Create RLS policies for users table
-create policy "Users can view own profile"
-    on users for select
-    using (auth.uid() = id);
-    
-create policy "Users can update own profile"
-    on users for update
-    using (auth.uid() = id);
+alter table system_logs enable row level security;
 
 -- Create RLS policies for flashcards table
 create policy "Users can view own flashcards"
@@ -205,4 +197,12 @@ create policy "Users can update own session reviews"
     
 create policy "Users can delete own session reviews"
     on session_reviews for delete
-    using (auth.uid() = (select user_id from study_sessions where id = study_session_id)); 
+    using (auth.uid() = (select user_id from study_sessions where id = study_session_id));
+
+-- Create RLS policies for system_logs table
+-- Only administrators have access to logs
+create policy "Admins can view system logs"
+    on system_logs for select
+    using (auth.uid() in (
+        select id from auth.users where email like '%@admin.com'
+    )); 

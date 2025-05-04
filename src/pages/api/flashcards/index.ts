@@ -2,7 +2,6 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import type { PaginatedResponse, Flashcard, CreateFlashcardCommand } from '../../../types';
 import { flashcardService } from '../../../lib/services/flashcard-service';
-import { DEFAULT_USER_ID } from '../../../db/supabase.client';
 import { loggerService } from '../../../lib/services/logger-service';
 
 // Schema for validating query parameters
@@ -36,7 +35,16 @@ type CreateFlashcardBody = z.infer<typeof createFlashcardSchema>;
  * @returns Paginated list of user's flashcards
  */
 export const GET: APIRoute = async ({ request, locals }) => {
-  const userId = DEFAULT_USER_ID;
+  // Użyj ID zalogowanego użytkownika
+  const userId = locals.user?.id;
+  
+  // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
+  if (!userId) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
   
   try {
     // 1. Parse and validate query parameters
@@ -57,8 +65,8 @@ export const GET: APIRoute = async ({ request, locals }) => {
     
     const params = validationResult.data;
     
-    // 3. Call FlashcardService to get user's flashcards
-    const result = await flashcardService.getUserFlashcards(userId, params);
+    // 3. Call FlashcardService to get user's flashcards, passing the authenticated Supabase client
+    const result = await flashcardService.getUserFlashcards(userId, params, locals.supabase);
     
     // 4. Return formatted response
     return new Response(
@@ -96,7 +104,17 @@ export const GET: APIRoute = async ({ request, locals }) => {
  * @returns Created flashcard
  */
 export const POST: APIRoute = async ({ request, locals }) => {
-  const userId = DEFAULT_USER_ID;
+  // Użyj ID zalogowanego użytkownika
+  const userId = locals.user?.id;
+  
+  // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
+  if (!userId) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+  
   try {
     // Parse and validate request body
     const body = await request.json();
@@ -112,8 +130,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Build command object from validated data
     const { front_content, back_content } = validationResult.data;
     const command: CreateFlashcardCommand = { front_content, back_content };
-    // Create flashcard via service
-    const flashcard = await flashcardService.createFlashcard(command, userId);
+    // Create flashcard via service, passing the authenticated Supabase client
+    const flashcard = await flashcardService.createFlashcard(command, userId, locals.supabase);
     // Return the created flashcard
     return new Response(JSON.stringify(flashcard), {
       status: 201,

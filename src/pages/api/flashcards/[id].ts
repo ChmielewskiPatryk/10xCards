@@ -2,54 +2,69 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import type { Flashcard } from '../../../types';
 import { flashcardService, NotFoundError } from '../../../lib/services/flashcard-service';
-import { DEFAULT_USER_ID, supabaseClient } from '../../../db/supabase.client';
+import { supabaseClient } from '../../../db/supabase.client';
 import { loggerService } from '../../../lib/services/logger-service';
 import type { Json } from '../../../db/database.types';
 
 // Schema for validating route parameters
 const idParamSchema = z.object({ id: z.string().uuid() });
 
+// Validate UUID format
+const uuidSchema = z.string().uuid('Invalid UUID format');
+
 /**
  * GET /api/flashcards/:id
  * Retrieve a single flashcard by its ID, ensuring it belongs to the user.
  */
-export const GET: APIRoute = async ({ params }) => {
-  const userId = DEFAULT_USER_ID;
-
-  // Validate route parameter
-  const parsedParams = idParamSchema.safeParse(params);
-  if (!parsedParams.success) {
-    const errorMessage = 'Invalid flashcard id';
-    await loggerService.logError(userId, 'VALIDATION_FAILED', errorMessage);
+export const GET: APIRoute = async ({ params, locals }) => {
+  // Użyj ID zalogowanego użytkownika
+  const userId = locals.user?.id;
+  
+  // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
+  if (!userId) {
     return new Response(
-      JSON.stringify({ error: errorMessage, details: parsedParams.error.format() }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
-
-  const { id } = parsedParams.data;
+  
   try {
-    // Fetch flashcard
-    const flashcard = await flashcardService.getById(userId, id);
+    // Validate flashcard ID
+    const idValidation = uuidSchema.safeParse(params.id);
+    if (!idValidation.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid flashcard ID format' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const flashcardId = idValidation.data;
+    
+    // Get flashcard by ID, passing the authenticated Supabase client
+    const flashcard = await flashcardService.getById(userId, flashcardId, locals.supabase);
+    
+    // Return the flashcard
     return new Response(
       JSON.stringify(flashcard),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    console.error('Error in GET /api/flashcards/:id:', error);
+    
+    // Determine the appropriate error status and message
+    let status = 500;
+    let errorMessage = 'An internal server error occurred';
+    
     if (error instanceof NotFoundError) {
-      const errorMessage = error.message;
-      await loggerService.logError(userId, 'NOT_FOUND', errorMessage);
-      return new Response(
-        JSON.stringify({ error: errorMessage }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      status = 404;
+      errorMessage = 'Flashcard not found';
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
-    // Internal server error
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    await loggerService.logError(userId, 'INTERNAL_ERROR', errorMessage);
+    
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
@@ -66,153 +81,138 @@ const updateFlashcardSchema = z.object({
  * Update a flashcard by its ID, ensuring it belongs to the user.
  * If the flashcard was created by AI and is edited, its source will be changed to 'semi_ai'.
  */
-export const PUT: APIRoute = async ({ params, request }) => {
-  const userId = DEFAULT_USER_ID;
-
-  // Validate route parameter
-  const parsedParams = idParamSchema.safeParse(params);
-  if (!parsedParams.success) {
-    const errorMessage = 'Invalid flashcard id';
-    await loggerService.logError(userId, 'VALIDATION_FAILED', errorMessage);
+export const PUT: APIRoute = async ({ request, params, locals }) => {
+  // Użyj ID zalogowanego użytkownika
+  const userId = locals.user?.id;
+  
+  // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
+  if (!userId) {
     return new Response(
-      JSON.stringify({ error: errorMessage, details: parsedParams.error.format() }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
-
-  const { id } = parsedParams.data;
-
+  
   try {
-    // Parse and validate request body
-    const body = await request.json();
-    const validationResult = updateFlashcardSchema.safeParse(body);
-    if (!validationResult.success) {
-      const errorMessage = 'Validation error in request body';
-      await loggerService.logError(userId, 'VALIDATION_FAILED', errorMessage);
+    // Validate flashcard ID
+    const idValidation = uuidSchema.safeParse(params.id);
+    if (!idValidation.success) {
       return new Response(
-        JSON.stringify({ error: errorMessage, details: validationResult.error.format() }),
+        JSON.stringify({ error: 'Invalid flashcard ID format' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-
-    // Get existing flashcard to check if it exists and belongs to the user
-    const existingFlashcard = await flashcardService.getById(userId, id);
     
-    // Determine if this is an AI-generated flashcard being modified
-    const isAiFlashcard = existingFlashcard.source === 'ai';
-    const isContentModified = 
-      existingFlashcard.front_content !== validationResult.data.front_content || 
-      existingFlashcard.back_content !== validationResult.data.back_content;
+    const flashcardId = idValidation.data;
     
-    // Set source to 'semi_ai' if this is an AI flashcard being modified
-    const source = (isAiFlashcard && isContentModified) ? 'semi_ai' : existingFlashcard.source;
+    // Validate request body
+    const updateSchema = z.object({
+      front_content: z.string().min(1).max(200).optional(),
+      back_content: z.string().min(1).max(200).optional(),
+    }).refine(data => data.front_content || data.back_content, {
+      message: "At least one of front_content or back_content must be provided"
+    });
     
-    // Update the flashcard via Supabase
-    const { data, error } = await supabaseClient
-      .from('flashcards')
-      .update({
-        front_content: validationResult.data.front_content,
-        back_content: validationResult.data.back_content,
-        source: source,
-        ai_metadata: (validationResult.data.ai_metadata || existingFlashcard.ai_metadata) as Json,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .eq('user_id', userId)
-      .select('id, front_content, back_content, source, ai_metadata, created_at, updated_at')
-      .single();
+    const body = await request.json();
+    const validationResult = updateSchema.safeParse(body);
     
-    if (error) {
-      throw error;
+    if (!validationResult.success) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Validation error in request body',
+          details: validationResult.error.format()
+        }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
     
-    if (!data) {
-      throw new NotFoundError();
-    }
+    // Update the flashcard, passing the authenticated Supabase client
+    const updatedFlashcard = await flashcardService.updateFlashcard(
+      flashcardId,
+      validationResult.data,
+      userId,
+      locals.supabase
+    );
     
     // Return the updated flashcard
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify(updatedFlashcard),
       { status: 200, headers: { 'Content-Type': 'application/json' } }
     );
   } catch (error) {
+    console.error('Error in PUT /api/flashcards/:id:', error);
+    
+    // Determine the appropriate error status and message
+    let status = 500;
+    let errorMessage = 'An internal server error occurred';
+    
     if (error instanceof NotFoundError) {
-      const errorMessage = error.message;
-      await loggerService.logError(userId, 'NOT_FOUND', errorMessage);
-      return new Response(
-        JSON.stringify({ error: errorMessage }),
-        { status: 404, headers: { 'Content-Type': 'application/json' } }
-      );
+      status = 404;
+      errorMessage = 'Flashcard not found';
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
-    // Internal server error
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    await loggerService.logError(userId, 'INTERNAL_ERROR', errorMessage);
+    
     return new Response(
       JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
 
-// UUID validation schema
-const uuidSchema = z.string().uuid('Invalid flashcard ID format');
-
+/**
+ * DELETE /api/flashcards/:id
+ * Delete a flashcard by its ID, ensuring it belongs to the user.
+ */
 export const DELETE: APIRoute = async ({ params, locals }) => {
-  // Get Supabase client from context
-  const supabase = locals.supabase;
+  // Użyj ID zalogowanego użytkownika zamiast stałego ID
+  const userId = locals.user?.id;
   
-  // Using DEFAULT_USER_ID for now, authentication will be implemented later
-  const userId = DEFAULT_USER_ID;
-
-  // Validate route parameter
-  const parsedParams = idParamSchema.safeParse(params);
-  if (!parsedParams.success) {
-    const errorMessage = 'Invalid flashcard id';
-    await loggerService.logError(userId, 'VALIDATION_FAILED', errorMessage);
+  // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
+  if (!userId) {
     return new Response(
-      JSON.stringify({ error: errorMessage, details: parsedParams.error.format() }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
+      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } }
     );
   }
-
-  const { id } = parsedParams.data;
   
   try {
-    // Call service to delete flashcard
-    await flashcardService.deleteFlashcard(id, userId);
-    
-    // Return No Content status on successful deletion
-    return new Response(null, { 
-      status: 204 
-    });
-  } catch (error) {
-    if (error instanceof NotFoundError) {
-      const errorMessage = error.message;
-      await loggerService.logError(userId, 'NOT_FOUND', errorMessage);
-      return new Response(JSON.stringify({ 
-        error: 'Not Found', 
-        message: errorMessage 
-      }), {
-        status: 404,
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+    // Validate flashcard ID
+    const idValidation = uuidSchema.safeParse(params.id);
+    if (!idValidation.success) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid flashcard ID format' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } }
+      );
     }
     
-    // Log internal server errors
-    const errorMessage = error instanceof Error ? error.message : 'An error occurred while processing your request';
-    await loggerService.logError(userId, 'INTERNAL_ERROR', errorMessage);
+    const flashcardId = idValidation.data;
     
-    // Return generic error for other cases
-    return new Response(JSON.stringify({ 
-      error: 'Internal Server Error', 
-      message: errorMessage 
-    }), {
-      status: 500,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    // Delete the flashcard, passing the authenticated Supabase client
+    await flashcardService.deleteFlashcard(flashcardId, userId, locals.supabase);
+    
+    // Return success response
+    return new Response(
+      JSON.stringify({ message: 'Flashcard deleted successfully' }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Error in DELETE /api/flashcards/:id:', error);
+    
+    // Determine the appropriate error status and message
+    let status = 500;
+    let errorMessage = 'An internal server error occurred';
+    
+    if (error instanceof NotFoundError) {
+      status = 404;
+      errorMessage = 'Flashcard not found';
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    
+    return new Response(
+      JSON.stringify({ error: errorMessage }),
+      { status, headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }; 

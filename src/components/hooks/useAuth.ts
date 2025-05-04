@@ -1,50 +1,57 @@
 import { useState, useEffect } from 'react';
-import type { User } from '../dashboard/types';
+import { supabaseClient } from '../../db/supabase.client';
+import type { User } from '@supabase/supabase-js';
 
-// This will be replaced with actual Supabase auth later
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Mock user data - this will come from Supabase later
-        const mockUser: User = {
-          id: 'mock-user-id',
-          email: 'user@example.com',
-          name: 'Przykładowy Użytkownik',
-          createdAt: new Date()
-        };
-        
-        setUser(mockUser);
-      } catch (err) {
-        console.error('Error checking auth:', err);
-        setError(err instanceof Error ? err : new Error('Unknown error'));
-      } finally {
-        setIsLoading(false);
+    // Get initial session
+    supabaseClient.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        setError(error);
+      } else {
+        setUser(session?.user ?? null);
       }
+      setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
     };
-    
-    checkAuth();
   }, []);
   
   const signOut = async () => {
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Wywołaj API endpoint wylogowania, które obsługuje sesję po stronie serwera
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'same-origin',
+      });
       
-      // Clear user - this will call Supabase auth.signOut() later
-      setUser(null);
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.error || 'Błąd wylogowania');
+      }
+      
+      // Następnie wyczyść sesję po stronie klienta
+      const { error } = await supabaseClient.auth.signOut();
+      if (error) throw error;
       
       // Redirect to login page
-      window.location.href = '/login';
+      window.location.href = '/auth/login';
     } catch (err) {
       console.error('Error signing out:', err);
       setError(err instanceof Error ? err : new Error('Unknown error'));

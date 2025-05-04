@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button } from "@/components/ui/button";
 import type { UserInfoProps } from './types';
 
-const UserInfo: React.FC<UserInfoProps> = ({ user, onLogout }) => {
+const UserInfo: React.FC<UserInfoProps> = ({ user, onLogout, isLoggingOut = false }) => {
   return (
     <div className="flex items-center gap-4">
       <div className="hidden md:flex flex-col items-end">
@@ -29,9 +29,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, onLogout }) => {
         variant="outline" 
         size="sm" 
         onClick={onLogout}
+        disabled={isLoggingOut}
         className="text-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-950 dark:hover:text-red-400 dark:hover:border-red-900 transition-colors"
       >
-        Wyloguj
+        {isLoggingOut ? 'Wylogowywanie...' : 'Wyloguj'}
       </Button>
     </div>
   );

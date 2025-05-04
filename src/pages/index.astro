@@ -1,28 +1,14 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import DashboardHeader from '../components/dashboard/DashboardHeader';
+import MainLayout from '../layouts/MainLayout.astro';
 import DashboardOverview from '../components/dashboard/DashboardOverview';
-import DashboardFooter from '../components/dashboard/DashboardFooter';
-import useUserStats from '../components/hooks/useUserStats';
 
-// TODO: Implement proper authentication with Supabase later
-// Temporary mock authentication
-const mockUser = {
-  id: 'mock-user-id',
-  email: 'user@example.com',
-  name: 'Przykładowy Użytkownik',
-  createdAt: new Date()
-};
+// Get user from Astro.locals context
+const { user } = Astro.locals;
 
-// Temporarily always treat the user as logged in
-const isLoggedIn = true;
-
-if (!isLoggedIn) {
-  return Astro.redirect('/login');
+// If user is not logged in, redirect to login page
+if (!user) {
+  return Astro.redirect('/auth/login');
 }
-
-// Pass mocked user to components
-const user = mockUser;
 
 // Define dashboard tiles with placeholders for stats
 // The actual stats will be loaded client-side in the DashboardOverview component
@@ -67,15 +53,7 @@ const dashboardTiles = [
 ];
 ---
 
-<Layout title="10xCards - Dashboard">
-  <div class="container mx-auto px-4 py-8 max-w-5xl">
-    <DashboardHeader user={user} client:load />
-    
-    <main class="my-8">
-      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Dashboard</h1>
-      <DashboardOverview tiles={dashboardTiles} client:load />
-    </main>
-    
-    <DashboardFooter client:load />
-  </div>
-</Layout> 
+<MainLayout title="10xCards - Dashboard">
+  <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Dashboard</h1>
+  <DashboardOverview tiles={dashboardTiles} client:load />
+</MainLayout> 

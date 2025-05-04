@@ -7,7 +7,6 @@ import { Toast } from './Toast';
 import { useFlashcards } from './hooks/useFlashcards';
 import type { Filters } from './hooks/useFlashcards';
 import type { ToastType } from './Toast';
-import DashboardHeader from './dashboard/DashboardHeader';
 import useAuth from './hooks/useAuth';
 import { FlashcardEditForm } from './generate/FlashcardEditForm';
 import type { FlashcardCandidateViewModel } from './generate/types';
@@ -34,7 +33,13 @@ export default function FlashcardsPage() {
   const studiedToday = 0; // To be implemented - would come from actual data
   const mastered = 0; // To be implemented - would come from actual data
 
-  const handleSourceChange = (value: Filters['source']) => { setFilters((f) => ({ ...f, source: value })); setPage(1); };
+  const handleSourceChange = (value: 'manual' | 'ai' | 'semi_ai' | 'all') => { 
+    // Only accept the values that match our Filters type
+    if (value !== 'all') {
+      setFilters((f) => ({ ...f, source: value })); 
+      setPage(1);
+    }
+  };
   const handleSortChange = (value: Filters['sort']) => { setFilters((f) => ({ ...f, sort: value })); setPage(1); };
   const handleOrderChange = (value: Filters['order']) => { setFilters((f) => ({ ...f, order: value })); setPage(1); };
   const handlePageChange = (n: number) => setPage(n);
@@ -135,9 +140,6 @@ export default function FlashcardsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      {/* Main navigation header */}
-      {user && <DashboardHeader user={user} activePath="/flashcards" />}
-
       {/* Header section with background */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-6 rounded-b-lg shadow-md">
         <h1 className="text-3xl font-bold">Przegląd fiszek</h1>
