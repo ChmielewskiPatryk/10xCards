@@ -12,14 +12,18 @@ export async function createAuthenticatedContext(browser: Browser, email: string
   const context = await createIsolatedContext(browser);
   const page = await context.newPage();
   
-  // Implementation would depend on your app's authentication flow
-  await page.goto('/login');
+  // Navigate to login page
+  await page.goto('/auth/login');
+  
+  // Fill login form
   await page.fill('[data-testid="email-input"]', email);
   await page.fill('[data-testid="password-input"]', password);
+  
+  // Submit form
   await page.click('[data-testid="login-button"]');
   
-  // Wait for authentication to complete
-  await page.waitForURL('/dashboard');
+  // Wait for redirect after successful login
+  await page.waitForURL('/');
   
   // Close the page but keep the authenticated context
   await page.close();

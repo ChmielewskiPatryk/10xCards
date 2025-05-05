@@ -56,9 +56,9 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" data-testid="login-form">
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-300 p-3 rounded-md text-sm">
+        <div className="bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-300 p-3 rounded-md text-sm" data-testid="login-error">
           {error}
         </div>
       )}
@@ -71,11 +71,12 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
           {...register('email')}
           type="email"
           id="email"
+          data-testid="email-input"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           placeholder="twoj@email.com"
         />
         {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400" data-testid="email-error">{errors.email.message}</p>
         )}
       </div>
 
@@ -87,11 +88,12 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
           {...register('password')}
           type="password"
           id="password"
+          data-testid="password-input"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           placeholder="••••••••"
         />
         {errors.password && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400" data-testid="password-error">{errors.password.message}</p>
         )}
       </div>
 
@@ -99,12 +101,14 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
         <a
           href="/auth/forgot-password"
           className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+          data-testid="forgot-password-link"
         >
           Zapomniałeś hasła?
         </a>
         <a
           href="/auth/register"
           className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+          data-testid="register-link"
         >
           Zarejestruj się
         </a>
@@ -113,6 +117,7 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
       <button
         type="submit"
         disabled={isLoading}
+        data-testid="login-button"
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {isLoading ? 'Logowanie...' : 'Zaloguj się'}
