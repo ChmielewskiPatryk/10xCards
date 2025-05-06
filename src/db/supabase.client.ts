@@ -15,7 +15,7 @@ export const DEFAULT_USER_ID = 'a2ff3fac-c997-4edf-aba4-5092242fd92f';
 
 // OpenRouter API settings
 export const openRouterApiKey = import.meta.env.PUBLIC_OPENROUTER_API_KEY || '';
-export const openRouterUrl = 'https://openrouter.ai/api/v1/chat/completions';
+export const openRouterUrl = 'https://openrouter.ai/api/v1';
 
 export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
