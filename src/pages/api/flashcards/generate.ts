@@ -1,14 +1,8 @@
 import type { APIRoute } from 'astro';
-import { z } from 'zod';
 import { supabaseClient } from '../../../db/supabase.client';
-import type { GenerateFlashcardsCommand, FlashcardCandidate } from '../../../types';
-import { aiService } from '../../../lib/services/ai-service';
+import type { FlashcardCandidate } from '../../../types';
+import { generateFlashcardsSchema as commandSchema, generateService } from '../../../lib/services/generate-service';
 import { loggerService } from '../../../lib/services/logger-service';
-
-// Schema for validating request body
-const generateFlashcardsSchema = z.object({
-  source_text: z.string().min(1000, "Content must be at least 1000 characters long").max(10000, "Content must be at most 10000 characters long"),
-});
 
 export const prerender = false;
 
@@ -44,7 +38,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     console.log(body);
-    const validationResult = generateFlashcardsSchema.safeParse(body);
+    const validationResult = commandSchema.safeParse(body);
     
     if (!validationResult.success) {
       const errorMessage = 'Validation error in request body';
@@ -59,26 +53,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     console.log('prepare')
-    // Prepare the flashcard generation schema
-    const flashcardSchema = z.array(z.object({
-      front_content: z.string(),
-      back_content: z.string(),
-      ai_metadata: z.object({
-        model: z.string(),
-        generation_time: z.string(),
-        parameters: z.record(z.unknown())
-      })
-    }));
-    
-    // Extract structured data using AI
-    const content = validationResult.data.source_text;
-    console.log(content);
-    const instructions = "Generate a set of flashcards from the provided text.";
-    const generatedFlashcards = await aiService.extractData<FlashcardCandidate[]>(
-      flashcardSchema,
-      content,
-      instructions
-    );
+    // Generate flashcards using generateService
+    const command = validationResult.data;
+    const generatedFlashcards = await generateService.generateFlashcards(command);
     
     // Return response
     return new Response(
