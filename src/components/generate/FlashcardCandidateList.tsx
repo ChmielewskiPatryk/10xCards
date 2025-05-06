@@ -30,7 +30,7 @@ export function FlashcardCandidateList({
   // Czy lista jest pusta
   if (flashcards.length === 0) {
     return (
-      <Alert variant="destructive">
+      <Alert variant="destructive" data-testid="flashcards-empty-alert">
         <AlertCircle className="h-4 w-4 mr-2" />
         <AlertDescription>
           Nie znaleziono propozycji fiszek. Spróbuj ponownie z innym tekstem.
@@ -43,8 +43,8 @@ export function FlashcardCandidateList({
   const needsOptimization = flashcards.length > OPTIMIZATION_THRESHOLD;
 
   return (
-    <div className="space-y-5">
-      <div className="text-sm text-muted-foreground">
+    <div className="space-y-5" data-testid="flashcards-candidate-list">
+      <div className="text-sm text-muted-foreground" data-testid="flashcards-selected-count">
         Wybrano {selectedCount} z {flashcards.length} fiszek
       </div>
       
@@ -55,10 +55,11 @@ export function FlashcardCandidateList({
           onSelect={onSelect}
           onEdit={onEdit}
           onReject={onReject}
+          data-testid="optimized-flashcards-list"
         />
       ) : (
         // Standardowa lista dla małej liczby fiszek
-        <div className="space-y-4">
+        <div className="space-y-4" data-testid="standard-flashcards-list">
           {flashcards.map((flashcard, index) => (
             <FlashcardCandidateItem
               key={index}

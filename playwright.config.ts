@@ -28,7 +28,7 @@ export default defineConfig({
     command: 'npm run dev:e2e',
     port: 3000,
     reuseExistingServer: false,
-    timeout: 5000,
+    timeout: 10000,
     stdout: 'pipe',
     stderr: 'pipe',
   },

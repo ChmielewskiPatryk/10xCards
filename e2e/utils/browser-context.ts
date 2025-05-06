@@ -8,25 +8,27 @@ export async function createIsolatedContext(browser: Browser, storageState?: str
   });
 }
 
-export async function createAuthenticatedContext(browser: Browser, email: string, password: string): Promise<BrowserContext> {
+export async function createAuthenticatedContext(browser: Browser, email: string, password: string): Promise<Page> {
   const context = await createIsolatedContext(browser);
   const page = await context.newPage();
   
   // Navigate to login page
   await page.goto('/auth/login');
-  
+  await page.waitForTimeout(2000);
   // Fill login form
-  await page.fill('[data-testid="email-input"]', email);
-  await page.fill('[data-testid="password-input"]', password);
+  await page.getByTestId('email-input').click();
+  await page.getByTestId('email-input').fill(email);
+
+  await page.getByTestId('password-input').click();
+  await page.getByTestId('password-input').fill(password);
   
+  await page.click('h1'); 
+
   // Submit form
-  await page.click('[data-testid="login-button"]');
-  
+  await page.getByTestId('login-button').click();
+  await page.waitForTimeout(2000);
   // Wait for redirect after successful login
-  await page.waitForURL('/');
+  await page.waitForURL('');
   
-  // Close the page but keep the authenticated context
-  await page.close();
-  
-  return context;
+  return page;
 } 

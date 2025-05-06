@@ -106,7 +106,7 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full" data-testid="generate-flashcards-form">
       <form onSubmit={handleSubmit}>
         <CardHeader>
           <CardTitle>Tekst źródłowy</CardTitle>
@@ -126,15 +126,16 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
               placeholder="Wprowadź tekst, z którego chcesz wygenerować fiszki (min. 1000 znaków)"
               aria-invalid={!!errors.sourceText}
               aria-describedby="sourceText-error"
+              data-testid="source-text-input"
             />
             
             <div className="flex justify-between items-center">
-              <p className={`text-xs ${getCharCountColor()}`}>
+              <p className={`text-xs ${getCharCountColor()}`} data-testid="character-count">
                 {characterCount} / 10000 znaków
               </p>
               
               {errors.sourceText && (
-                <div className="flex items-center text-red-500 text-sm" id="sourceText-error" role="alert">
+                <div className="flex items-center text-red-500 text-sm" id="sourceText-error" role="alert" data-testid="source-text-error">
                   <AlertCircle className="h-4 w-4 mr-1" />
                   {errors.sourceText}
                 </div>
@@ -157,10 +158,11 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
               className="w-full sm:w-32"
               aria-invalid={!!errors.maxFlashcards}
               aria-describedby="maxFlashcards-error"
+              data-testid="max-flashcards-input"
             />
             
             {errors.maxFlashcards && (
-              <div className="flex items-center text-red-500 text-sm" id="maxFlashcards-error" role="alert">
+              <div className="flex items-center text-red-500 text-sm" id="maxFlashcards-error" role="alert" data-testid="max-flashcards-error">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.maxFlashcards}
               </div>
@@ -172,6 +174,7 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
           <Button 
             type="submit" 
             disabled={isGenerateButtonDisabled()}
+            data-testid="generate-flashcards-button"
           >
             {isLoading ? 'Generowanie...' : 'Generuj fiszki'}
           </Button>

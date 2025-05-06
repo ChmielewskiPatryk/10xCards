@@ -21,6 +21,7 @@ export function SaveSelectedFlashcardsButton({
       onClick={onSave}
       disabled={isDisabled}
       className="relative"
+      data-testid="save-selected-flashcards-button"
     >
       {isLoading ? (
         <span className="flex items-center">

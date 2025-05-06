@@ -7,7 +7,7 @@ import { loggerService } from '../../../lib/services/logger-service';
 
 // Schema for validating request body
 const generateFlashcardsSchema = z.object({
-  content: z.string().min(100, "Content must be at least 100 characters long"),
+  source_text: z.string().min(1000, "Content must be at least 1000 characters long").max(10000, "Content must be at most 10000 characters long"),
 });
 
 export const prerender = false;
@@ -43,7 +43,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    
+    console.log(body);
     const validationResult = generateFlashcardsSchema.safeParse(body);
     
     if (!validationResult.success) {
@@ -58,7 +58,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    
+    console.log('prepare')
     // Prepare the flashcard generation schema
     const flashcardSchema = z.array(z.object({
       front_content: z.string(),
@@ -71,7 +71,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }));
     
     // Extract structured data using AI
-    const content = validationResult.data.content;
+    const content = validationResult.data.source_text;
+    console.log(content);
     const instructions = "Generate a set of flashcards from the provided text.";
     const generatedFlashcards = await aiService.extractData<FlashcardCandidate[]>(
       flashcardSchema,
