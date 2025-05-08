@@ -107,6 +107,7 @@ export default function ManualFlashcardForm() {
                     <Textarea 
                       placeholder="Wprowadź treść przedniej strony fiszki" 
                       className="resize-none min-h-[120px]" 
+                      data-testid="front-content-input"
                       {...field} 
                     />
                     <div className="absolute bottom-2 right-2 text-xs text-gray-500">
@@ -130,6 +131,7 @@ export default function ManualFlashcardForm() {
                     <Textarea 
                       placeholder="Wprowadź treść tylnej strony fiszki" 
                       className="resize-none min-h-[120px]" 
+                      data-testid="back-content-input"
                       {...field} 
                     />
                     <div className="absolute bottom-2 right-2 text-xs text-gray-500">
@@ -148,12 +150,14 @@ export default function ManualFlashcardForm() {
               variant="outline"
               onClick={() => form.reset()}
               disabled={formState.isSubmitting}
+              data-testid="clear-button"
             >
               Wyczyść
             </Button>
             <Button
               type="submit"
               disabled={!form.formState.isValid || formState.isSubmitting}
+              data-testid="save-button"
             >
               {formState.isSubmitting ? "Zapisywanie..." : "Zapisz fiszkę"}
             </Button>

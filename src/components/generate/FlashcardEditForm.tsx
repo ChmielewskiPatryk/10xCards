@@ -74,30 +74,36 @@ export function FlashcardEditForm({
     <Dialog open={true} onOpenChange={(open) => {
       if (!open) onCancel();
     }}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent 
+        className="sm:max-w-[600px] h-fit max-h-[90vh] flex flex-col" 
+        data-testid="edit-flashcard-dialog"
+      >
         <DialogHeader>
           <DialogTitle>Edycja fiszki</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="flex-1 space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="frontContent">
               Przód fiszki (pytanie)
               <span className="text-red-500">*</span>
             </Label>
             
-            <Textarea
-              id="frontContent"
-              value={frontContent}
-              onChange={(e) => setFrontContent(e.target.value)}
-              placeholder="Wprowadź treść przodu fiszki"
-              className="min-h-[100px]"
-              aria-invalid={!!errors.frontContent}
-              aria-describedby="frontContent-error"
-            />
+            <div className="relative h-24">
+              <Textarea
+                id="frontContent"
+                value={frontContent}
+                onChange={(e) => setFrontContent(e.target.value)}
+                placeholder="Wprowadź treść przodu fiszki"
+                className="absolute inset-0 resize-none"
+                aria-invalid={!!errors.frontContent}
+                aria-describedby="frontContent-error"
+                data-testid="edit-front-content"
+              />
+            </div>
             
             {errors.frontContent && (
-              <div className="flex items-center text-red-500 text-sm" id="frontContent-error">
+              <div className="flex items-center text-red-500 text-sm" id="frontContent-error" data-testid="front-content-error">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.frontContent}
               </div>
@@ -110,18 +116,21 @@ export function FlashcardEditForm({
               <span className="text-red-500">*</span>
             </Label>
             
-            <Textarea
-              id="backContent"
-              value={backContent}
-              onChange={(e) => setBackContent(e.target.value)}
-              placeholder="Wprowadź treść tyłu fiszki"
-              className="min-h-[120px]"
-              aria-invalid={!!errors.backContent}
-              aria-describedby="backContent-error"
-            />
+            <div className="relative h-32">
+              <Textarea
+                id="backContent"
+                value={backContent}
+                onChange={(e) => setBackContent(e.target.value)}
+                placeholder="Wprowadź treść tyłu fiszki"
+                className="absolute inset-0 resize-none"
+                aria-invalid={!!errors.backContent}
+                aria-describedby="backContent-error"
+                data-testid="edit-back-content"
+              />
+            </div>
             
             {errors.backContent && (
-              <div className="flex items-center text-red-500 text-sm" id="backContent-error">
+              <div className="flex items-center text-red-500 text-sm" id="backContent-error" data-testid="back-content-error">
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.backContent}
               </div>
@@ -130,10 +139,10 @@ export function FlashcardEditForm({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={onCancel}>
+          <Button variant="outline" onClick={onCancel} data-testid="edit-cancel-button">
             Anuluj
           </Button>
-          <Button onClick={handleSave}>
+          <Button onClick={handleSave} data-testid="edit-save-button">
             Zapisz zmiany
           </Button>
         </DialogFooter>

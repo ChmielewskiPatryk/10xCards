@@ -251,4 +251,4 @@ export class GenerateService {
 }
 
 // Export a singleton instance
-export const generateService = new GenerateService(false); // Set to false to use real API calls when configured 
+export const generateService = new GenerateService(import.meta.env.MOCK_OPEN_ROUTER === 'true'); // Use environment variable to control mock behavior 

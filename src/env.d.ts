@@ -6,6 +6,7 @@ import type { Database } from './db/database.types';
 interface ImportMetaEnv {
   readonly PUBLIC_SUPABASE_URL: string;
   readonly PUBLIC_SUPABASE_KEY: string;
+  readonly MOCK_OPEN_ROUTER: string;
 }
 
 interface ImportMeta {

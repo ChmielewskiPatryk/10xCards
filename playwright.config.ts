@@ -15,7 +15,6 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
-    // actionTimeout: 15000,
     launchOptions: {
       slowMo: 1000,
     },
@@ -26,8 +25,18 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'setup db',
+      testMatch: /global\.setup\.ts/,
+      teardown: 'cleanup db'
+    },
+    {
+      name: 'cleanup db',
+      testMatch: /global\.teardown\.ts/,
+    },
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
+      dependencies: ['setup db']
     },
   ],
   webServer: {
