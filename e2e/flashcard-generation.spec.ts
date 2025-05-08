@@ -1,20 +1,25 @@
 import { test, expect } from '@playwright/test';
 import { FlashcardGenerationPage } from './pages/flashcard-generation-page';
-import { createAuthenticatedContext } from './utils/browser-context';
 import { readTestDataFile } from './utils/file-utils';
 
 test.describe('Flashcard generation functionality', () => {
   const username = process.env.E2E_USERNAME || '';
   const password = process.env.E2E_PASSWORD || '';
   
-  // Test with authenticated context
-  test.beforeAll(async ({ browser }) => {
-    // Create authenticated context that will be used for all tests
-    test.setTimeout(30000); // Increase timeout for authentication
+  test.beforeEach(async ({ page }) => {
+    // Navigate to login page and authenticate before each test
+    await page.goto('/auth/login');
+    await page.waitForTimeout(3000);
+    await page.getByTestId('email-input').fill(username);
+    await page.waitForTimeout(3000);
+    await page.getByTestId('password-input').fill(password);
+    await page.waitForTimeout(3000);
+    await page.getByTestId('login-button').click();
+    await page.waitForTimeout(3000);
+    await page.waitForURL(''); // Wait for redirect after login
   });
   
-  test('should navigate to flashcard generation page when logged in', async ({ browser }) => {
-    const page = await createAuthenticatedContext(browser, username, password);
+  test('should navigate to flashcard generation page when logged in', async ({ page }) => {
     await page.goto('/flashcards/generate');
     const generationPage = new FlashcardGenerationPage(page);
     
@@ -22,13 +27,9 @@ test.describe('Flashcard generation functionality', () => {
     await expect(generationPage.sourceTextInput).toBeVisible();
     await expect(generationPage.maxFlashcardsInput).toBeVisible();
     await expect(generationPage.generateButton).toBeVisible();
-    
-    await page.close();
   });
   
-   test('should validate input requirements', async ({ browser }) => {
-    const page = await createAuthenticatedContext(browser, username, password);
-
+  test('should validate input requirements', async ({ page }) => {
     await page.goto('/flashcards/generate');
     const generationPage = new FlashcardGenerationPage(page);
     
@@ -43,12 +44,9 @@ test.describe('Flashcard generation functionality', () => {
     await generationPage.fillSourceText('A'.repeat(1000)); // Valid text length
     await generationPage.setMaxFlashcards(0); // Invalid max flashcards
     await expect(generationPage.generateButton).toBeDisabled();
-    
-    await page.close();
   });
   
-  test('should generate flashcards and allow selection', async ({ browser }) => {
-    const page = await createAuthenticatedContext(browser, username, password);
+  test('should generate flashcards and allow selection', async ({ page }) => {
     await page.goto('/flashcards/generate');
     const generationPage = new FlashcardGenerationPage(page);
 
@@ -56,14 +54,15 @@ test.describe('Flashcard generation functionality', () => {
     const sampleText = readTestDataFile('sample-text.txt');
     
     // Fill form with valid data
-    await generationPage.fillSourceText(sampleText);
+    await generationPage.fillSourceText('');
+
     await generationPage.setMaxFlashcards(5);
-    
+    await generationPage.fillSourceText(sampleText);
     // Start generation
     await generationPage.generateFlashcards();
-    
+
     // Wait for generation to complete (this might take time)
-    await page.waitForSelector('[data-testid="flashcards-candidate-list"]', { timeout: 60000 });
+    await page.waitForSelector('[data-testid="flashcards-candidate-list"]', { timeout: 120_000 });
     
     // Check that flashcards were generated
     await expect(generationPage.flashcardsList).toBeVisible();
@@ -80,6 +79,5 @@ test.describe('Flashcard generation functionality', () => {
     
     // Wait for success toast or redirection
     await page.waitForTimeout(2000); // Wait for any post-save operations
-    await page.close();
   });
 }); 

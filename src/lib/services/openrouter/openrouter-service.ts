@@ -332,5 +332,5 @@ import type {
   export const openRouterService = new OpenRouterService({
     apiKey: openRouterApiKey || '',
     defaultModel: process.env.OPENROUTER_DEFAULT_MODEL || 'anthropic/claude-3-haiku',
-    baseURL: openRouterUrl || 'https://openrouter.ai/api/v1'
+    baseURL: openRouterUrl || ''
   }); 

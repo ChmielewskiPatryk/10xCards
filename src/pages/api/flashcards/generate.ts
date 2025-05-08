@@ -37,7 +37,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    console.log(body);
     const validationResult = commandSchema.safeParse(body);
     
     if (!validationResult.success) {
@@ -52,7 +51,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
-    console.log('prepare')
+
     // Generate flashcards using generateService
     const command = validationResult.data;
     const generatedFlashcards = await generateService.generateFlashcards(command);
