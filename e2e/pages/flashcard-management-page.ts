@@ -10,6 +10,7 @@ export class FlashcardManagementPage {
   // Navigation
   async goto() {
     await this.page.goto('/flashcards');
+    await this.page.waitForLoadState('domcontentloaded');
   }
 
   // Selectors

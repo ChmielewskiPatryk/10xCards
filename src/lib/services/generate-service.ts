@@ -28,9 +28,10 @@ export class GenerateService {
   private modelUrl: string;
   private useMockResponse: boolean;
 
-  constructor(useMockResponse = false) {
+  constructor(useMockResponse: boolean) {
     this.apiKey = openRouterApiKey;
     this.modelUrl = openRouterUrl;
+    console.log('useMockResponse', useMockResponse);
     this.useMockResponse = useMockResponse;
   }
 
@@ -251,4 +252,4 @@ export class GenerateService {
 }
 
 // Export a singleton instance
-export const generateService = new GenerateService(import.meta.env.MOCK_OPEN_ROUTER === 'true'); // Use environment variable to control mock behavior 
+export const generateService = new GenerateService(import.meta.env.PUBLIC_MOCK_OPEN_ROUTER === 'true'); // Use environment variable to control mock behavior 
