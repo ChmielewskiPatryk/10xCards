@@ -9,7 +9,8 @@
     "test:e2e": "npx playwright test",
     "test:e2e:headed": "npx playwright test --headed",
     "dev": "astro dev",
-    "dev:e2e": "astro dev --mode test"
+    "dev:e2e": "astro dev --mode test",
+    "build": "astro build"
   },
   "dependencies": {
     "@astrojs/node": "^9.1.3",
