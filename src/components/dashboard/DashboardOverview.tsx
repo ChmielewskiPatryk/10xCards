@@ -1,25 +1,25 @@
-import * as React from 'react';
-import DashboardTile from '@/components/dashboard/DashboardTile';
-import type { DashboardOverviewProps } from './types';
-import useUserStats from '@/components/hooks/useUserStats';
+import * as React from "react";
+import DashboardTile from "@/components/dashboard/DashboardTile";
+import type { DashboardOverviewProps } from "./types";
+import useUserStats from "@/components/hooks/useUserStats";
 
 const DashboardOverview: React.FC<DashboardOverviewProps> = ({ tiles }) => {
-  const userId = 'mock-user-id'; // This will come from auth context later
+  const userId = "mock-user-id"; // This will come from auth context later
   const { stats, isLoading, error } = useUserStats(userId);
-  
+
   // Update tiles with actual stats
   const tilesWithStats = React.useMemo(() => {
-    return tiles.map(tile => {
-      if (tile.title === 'Moje fiszki') {
-        return { 
-          ...tile, 
-          count: isLoading ? '...' : error ? '!' : stats.flashcardsCount 
+    return tiles.map((tile) => {
+      if (tile.title === "Moje fiszki") {
+        return {
+          ...tile,
+          count: isLoading ? "..." : error ? "!" : stats.flashcardsCount,
         };
       }
-      if (tile.title === 'Sesje powtórek') {
-        return { 
-          ...tile, 
-          count: isLoading ? '...' : error ? '!' : stats.sessionsCount 
+      if (tile.title === "Sesje powtórek") {
+        return {
+          ...tile,
+          count: isLoading ? "..." : error ? "!" : stats.sessionsCount,
         };
       }
       return tile;
@@ -33,7 +33,7 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ tiles }) => {
           <p>Wystąpił błąd podczas ładowania statystyk. Spróbuj odświeżyć stronę.</p>
         </div>
       )}
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {tilesWithStats.map((tile, index) => (
           <DashboardTile
@@ -51,4 +51,4 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({ tiles }) => {
   );
 };
 
-export default DashboardOverview; 
+export default DashboardOverview;

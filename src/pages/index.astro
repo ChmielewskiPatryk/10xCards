@@ -1,59 +1,59 @@
 ---
-import MainLayout from '../layouts/MainLayout.astro';
-import DashboardOverview from '../components/dashboard/DashboardOverview';
+import MainLayout from "../layouts/MainLayout.astro";
+import DashboardOverview from "../components/dashboard/DashboardOverview";
 
 // Get user from Astro.locals context
 const { user } = Astro.locals;
 
 // If user is not logged in, redirect to login page
 if (!user) {
-  return Astro.redirect('/auth/login');
+  return Astro.redirect("/auth/login");
 }
 
 // Define dashboard tiles with placeholders for stats
 // The actual stats will be loaded client-side in the DashboardOverview component
 const dashboardTiles = [
   {
-    title: 'Generowanie fiszek',
-    description: 'Wygeneruj nowe fiszki z tekstu lub PDF',
-    icon: 'MagicWand',
-    linkTo: '/flashcards/generate',
-    color: 'bg-blue-100 dark:bg-blue-950'
+    title: "Generowanie fiszek",
+    description: "Wygeneruj nowe fiszki z tekstu lub PDF",
+    icon: "MagicWand",
+    linkTo: "/flashcards/generate",
+    color: "bg-blue-100 dark:bg-blue-950",
   },
   {
-    title: 'Ręczne tworzenie fiszek',
-    description: 'Utwórz własne fiszki bez użycia AI',
-    icon: 'Pencil',
-    linkTo: '/flashcards/new',
-    color: 'bg-amber-100 dark:bg-amber-950'
+    title: "Ręczne tworzenie fiszek",
+    description: "Utwórz własne fiszki bez użycia AI",
+    icon: "Pencil",
+    linkTo: "/flashcards/new",
+    color: "bg-amber-100 dark:bg-amber-950",
   },
   {
-    title: 'Moje fiszki',
-    description: 'Przeglądaj i zarządzaj swoimi fiszkami',
-    icon: 'Cards',
-    linkTo: '/flashcards',
+    title: "Moje fiszki",
+    description: "Przeglądaj i zarządzaj swoimi fiszkami",
+    icon: "Cards",
+    linkTo: "/flashcards",
     count: 0, // Will be updated client-side
-    color: 'bg-green-100 dark:bg-green-950'
+    color: "bg-green-100 dark:bg-green-950",
   },
   {
-    title: 'Sesje powtórek',
-    description: 'Rozpocznij nową sesję powtórek',
-    icon: 'Clock',
-    linkTo: '/review',
+    title: "Sesje powtórek",
+    description: "Rozpocznij nową sesję powtórek",
+    icon: "Clock",
+    linkTo: "/review",
     count: 0, // Will be updated client-side
-    color: 'bg-purple-100 dark:bg-purple-950'
+    color: "bg-purple-100 dark:bg-purple-950",
   },
   {
-    title: 'Ustawienia',
-    description: 'Zarządzaj swoim kontem i ustawieniami',
-    icon: 'Settings',
-    linkTo: '/settings',
-    color: 'bg-gray-100 dark:bg-gray-800'
-  }
+    title: "Ustawienia",
+    description: "Zarządzaj swoim kontem i ustawieniami",
+    icon: "Settings",
+    linkTo: "/settings",
+    color: "bg-gray-100 dark:bg-gray-800",
+  },
 ];
 ---
 
 <MainLayout title="10xCards - Dashboard">
   <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-8">Dashboard</h1>
   <DashboardOverview tiles={dashboardTiles} client:load />
-</MainLayout> 
+</MainLayout>

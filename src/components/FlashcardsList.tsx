@@ -1,14 +1,14 @@
-import * as React from 'react';
-import type { Flashcard } from '@/types';
-import { FlashcardCard } from '@/components/FlashcardCard';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import * as React from "react";
+import type { Flashcard } from "@/types";
+import { FlashcardCard } from "@/components/FlashcardCard";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
-export type FlashcardsListProps = {
+export interface FlashcardsListProps {
   items: Flashcard[];
   loading: boolean;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
-};
+}
 
 export function FlashcardsList({ items, loading, onEdit, onDelete }: FlashcardsListProps) {
   if (loading) {
@@ -24,4 +24,4 @@ export function FlashcardsList({ items, loading, onEdit, onDelete }: FlashcardsL
       ))}
     </div>
   );
-} 
+}

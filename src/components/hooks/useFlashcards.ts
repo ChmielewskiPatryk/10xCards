@@ -1,23 +1,19 @@
-import * as React from 'react';
-import type { Flashcard, Pagination, PaginatedResponse } from '@/types';
+import * as React from "react";
+import type { Flashcard, Pagination, PaginatedResponse } from "@/types";
 
-export type Filters = {
-  source: 'manual' | 'ai' | 'semi_ai';
-  sort: 'created_at' | 'updated_at';
-  order: 'asc' | 'desc';
-};
+export interface Filters {
+  source: "manual" | "ai" | "semi_ai";
+  sort: "created_at" | "updated_at";
+  order: "asc" | "desc";
+}
 
-export function useFlashcards(
-  filters: Filters,
-  page: number,
-  limit: number = 20
-) {
+export function useFlashcards(filters: Filters, page: number, limit = 20) {
   const [data, setData] = React.useState<Flashcard[]>([]);
   const [pagination, setPagination] = React.useState<Pagination>({
     total: 0,
     page,
     limit,
-    pages: 0
+    pages: 0,
   });
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -31,10 +27,10 @@ export function useFlashcards(
         limit: limit.toString(),
         sort: filters.sort,
         order: filters.order,
-        source: filters.source
+        source: filters.source,
       });
       const res = await fetch(`/api/flashcards?${params}`, {
-        credentials: 'include'
+        credentials: "include",
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
       const json = (await res.json()) as PaginatedResponse<Flashcard>;
@@ -52,4 +48,4 @@ export function useFlashcards(
   }, [fetchData]);
 
   return { data, pagination, loading, error, refresh: fetchData };
-} 
+}

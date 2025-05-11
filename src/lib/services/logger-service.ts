@@ -1,4 +1,4 @@
-import { supabaseClient } from '../../db/supabase.client';
+import { supabaseClient } from "../../db/supabase.client";
 
 /**
  * Service for logging errors and events
@@ -13,17 +13,17 @@ export class LoggerService {
    */
   async logError(userId: string, errorCode: string, errorMessage: string, model?: string) {
     try {
-      await supabaseClient.from('system_logs').insert({
+      await supabaseClient.from("system_logs").insert({
         user_id: userId,
         error_code: errorCode,
         error_message: errorMessage,
-        model: model
+        model: model,
       });
     } catch (logError) {
-      console.error('Failed to log error:', logError);
+      console.error("Failed to log error:", logError);
     }
   }
 }
 
 // Export a singleton instance
-export const loggerService = new LoggerService(); 
+export const loggerService = new LoggerService();

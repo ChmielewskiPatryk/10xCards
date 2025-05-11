@@ -1,9 +1,11 @@
 # API Endpoint Implementation Plan: GET /api/flashcards/:id
 
 ## 1. Overview of the Endpoint
+
 This endpoint is used to retrieve the details of a single flashcard belonging to the logged-in user based on its identifier.
 
 ## 2. Request Details
+
 - HTTP Method: GET
 - URL Structure: `/api/flashcards/:id`
 - Parameters:
@@ -13,6 +15,7 @@ This endpoint is used to retrieve the details of a single flashcard belonging to
 - Request Body: none
 
 ## 3. Response Details
+
 - Success (200 OK):
   - Body (JSON):
     ```json
@@ -32,6 +35,7 @@ This endpoint is used to retrieve the details of a single flashcard belonging to
   - 500 Internal Server Error — unexpected server-side error.
 
 ## 4. Data Flow
+
 1. **Authentication Middleware** (Astro) verifies JWT and places `supabase` instance and `userId` in `context.locals`.
 2. **Handler** in `src/pages/api/flashcards/[id].ts`:
    - Parses `id` from `params` and validates as UUID (Zod library).
@@ -40,9 +44,9 @@ This endpoint is used to retrieve the details of a single flashcard belonging to
    - Uses `locals.supabase`:
      ```ts
      const { data, error } = await supabase
-       .from('flashcards')
-       .select('id, front_content, back_content, source, ai_metadata, created_at, updated_at')
-       .eq('id', id)
+       .from("flashcards")
+       .select("id, front_content, back_content, source, ai_metadata, created_at, updated_at")
+       .eq("id", id)
        .single();
      ```
    - If no row: throws `NotFoundError`.
@@ -52,26 +56,30 @@ This endpoint is used to retrieve the details of a single flashcard belonging to
    - Other exceptions → 500 + logging.
 
 ## 5. Security Considerations
+
 - **Validation**: `id` as UUID prevents injection (Zod).
 - **Data Protection**: We do not return `user_id` field, only allowed columns.
 
 ## 6. Error Handling
+
 - 401 Unauthorized — missing/invalid Authorization header.
 - 400 Bad Request — `id` is not a valid UUID (ZodError).
 - 404 Not Found — no flashcard (thrown `NotFoundError`).
 - 500 Internal Server Error — catch-all; before returning the response, log errors to `system_logs` table:
   ```ts
   await supabase
-    .from('system_logs')
-    .insert({ user_id: userId, error_code: 'GET_FLASHCARD_ERROR', error_message: error.message, model: null });
+    .from("system_logs")
+    .insert({ user_id: userId, error_code: "GET_FLASHCARD_ERROR", error_message: error.message, model: null });
   ```
 
 ## 7. Performance
+
 - Query by indexed primary key (`id`).
 - Minimal set of columns fetched.
 - In the future — possibility to add cache (CDN / edge caching in Astro).
 
 ## 8. Implementation Steps
+
 1. **DTO/Types**: Ensure that in `src/types.ts` there is a `Flashcard` type matching the returned structure.
 2. **Service**: Create `src/lib/services/flashcardService.ts` with method:
    ```ts

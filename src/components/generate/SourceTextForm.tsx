@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle } from 'lucide-react';
-import type { GenerateFlashcardsFormData } from '../hooks/useGenerateFlashcards';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+import type { GenerateFlashcardsFormData } from "../hooks/useGenerateFlashcards";
 
-type SourceTextFormProps = {
+interface SourceTextFormProps {
   onSubmit: (formData: GenerateFlashcardsFormData) => Promise<void>;
   isLoading: boolean;
-};
+}
 
 export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
-  const [sourceText, setSourceText] = useState('');
+  const [sourceText, setSourceText] = useState("");
   const [maxFlashcards, setMaxFlashcards] = useState(10);
   const [errors, setErrors] = useState<{
     sourceText?: string;
@@ -26,28 +26,28 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
     const text = e.target.value;
     setSourceText(text);
     setCharacterCount(text.length);
-    
+
     // Walidacja tekstu na bieżąco
     if (text.length < 1000) {
-      setErrors(prev => ({ ...prev, sourceText: 'Tekst musi mieć co najmniej 1000 znaków' }));
+      setErrors((prev) => ({ ...prev, sourceText: "Tekst musi mieć co najmniej 1000 znaków" }));
     } else if (text.length > 10000) {
-      setErrors(prev => ({ ...prev, sourceText: 'Tekst nie może przekraczać 10000 znaków' }));
+      setErrors((prev) => ({ ...prev, sourceText: "Tekst nie może przekraczać 10000 znaków" }));
     } else {
-      setErrors(prev => ({ ...prev, sourceText: undefined }));
+      setErrors((prev) => ({ ...prev, sourceText: undefined }));
     }
   };
-  
+
   // Walidacja liczby fiszek
   const handleMaxFlashcardsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value) || 0;
     setMaxFlashcards(value);
-    
+
     if (value < 1) {
-      setErrors(prev => ({ ...prev, maxFlashcards: 'Minimalna liczba fiszek to 1' }));
+      setErrors((prev) => ({ ...prev, maxFlashcards: "Minimalna liczba fiszek to 1" }));
     } else if (value > 30) {
-      setErrors(prev => ({ ...prev, maxFlashcards: 'Maksymalna liczba fiszek to 30' }));
+      setErrors((prev) => ({ ...prev, maxFlashcards: "Maksymalna liczba fiszek to 30" }));
     } else {
-      setErrors(prev => ({ ...prev, maxFlashcards: undefined }));
+      setErrors((prev) => ({ ...prev, maxFlashcards: undefined }));
     }
   };
 
@@ -57,19 +57,19 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
       sourceText?: string;
       maxFlashcards?: string;
     } = {};
-    
+
     if (sourceText.length < 1000) {
-      newErrors.sourceText = 'Tekst musi mieć co najmniej 1000 znaków';
+      newErrors.sourceText = "Tekst musi mieć co najmniej 1000 znaków";
     } else if (sourceText.length > 10000) {
-      newErrors.sourceText = 'Tekst nie może przekraczać 10000 znaków';
+      newErrors.sourceText = "Tekst nie może przekraczać 10000 znaków";
     }
-    
+
     if (maxFlashcards < 1) {
-      newErrors.maxFlashcards = 'Minimalna liczba fiszek to 1';
+      newErrors.maxFlashcards = "Minimalna liczba fiszek to 1";
     } else if (maxFlashcards > 30) {
-      newErrors.maxFlashcards = 'Maksymalna liczba fiszek to 30';
+      newErrors.maxFlashcards = "Maksymalna liczba fiszek to 30";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -77,32 +77,30 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
   // Handle form submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validate()) {
       onSubmit({
         source_text: sourceText,
         options: {
-          max_flashcards: maxFlashcards
-        }
+          max_flashcards: maxFlashcards,
+        },
       });
     }
   };
-  
+
   // Character count color
   const getCharCountColor = () => {
-    if (characterCount < 1000) return 'text-amber-500';
-    if (characterCount > 9000) return 'text-amber-500';
-    if (characterCount > 10000) return 'text-red-500';
-    return 'text-gray-500';
+    if (characterCount < 1000) return "text-amber-500";
+    if (characterCount > 9000) return "text-amber-500";
+    if (characterCount > 10000) return "text-red-500";
+    return "text-gray-500";
   };
 
   // Sprawdzamy, czy przycisk generowania powinien być aktywny
   const isGenerateButtonDisabled = () => {
-    return isLoading || 
-           sourceText.length < 1000 || 
-           sourceText.length > 10000 || 
-           maxFlashcards < 1 || 
-           maxFlashcards > 30;
+    return (
+      isLoading || sourceText.length < 1000 || sourceText.length > 10000 || maxFlashcards < 1 || maxFlashcards > 30
+    );
   };
 
   return (
@@ -117,7 +115,7 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
               Wprowadź tekst, z którego chcesz wygenerować fiszki
               <span className="text-red-500">*</span>
             </Label>
-            
+
             <Textarea
               id="sourceText"
               value={sourceText}
@@ -128,26 +126,29 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
               aria-describedby="sourceText-error"
               data-testid="source-text-input"
             />
-            
+
             <div className="flex justify-between items-center">
               <p className={`text-xs ${getCharCountColor()}`} data-testid="character-count">
                 {characterCount} / 10000 znaków
               </p>
-              
+
               {errors.sourceText && (
-                <div className="flex items-center text-red-500 text-sm" id="sourceText-error" role="alert" data-testid="source-text-error">
+                <div
+                  className="flex items-center text-red-500 text-sm"
+                  id="sourceText-error"
+                  role="alert"
+                  data-testid="source-text-error"
+                >
                   <AlertCircle className="h-4 w-4 mr-1" />
                   {errors.sourceText}
                 </div>
               )}
             </div>
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="maxFlashcards">
-              Maksymalna liczba fiszek
-            </Label>
-            
+            <Label htmlFor="maxFlashcards">Maksymalna liczba fiszek</Label>
+
             <Input
               id="maxFlashcards"
               type="number"
@@ -160,23 +161,24 @@ export function SourceTextForm({ onSubmit, isLoading }: SourceTextFormProps) {
               aria-describedby="maxFlashcards-error"
               data-testid="max-flashcards-input"
             />
-            
+
             {errors.maxFlashcards && (
-              <div className="flex items-center text-red-500 text-sm" id="maxFlashcards-error" role="alert" data-testid="max-flashcards-error">
+              <div
+                className="flex items-center text-red-500 text-sm"
+                id="maxFlashcards-error"
+                role="alert"
+                data-testid="max-flashcards-error"
+              >
                 <AlertCircle className="h-4 w-4 mr-1" />
                 {errors.maxFlashcards}
               </div>
             )}
           </div>
         </CardContent>
-        
+
         <CardFooter className="flex justify-end">
-          <Button 
-            type="submit" 
-            disabled={isGenerateButtonDisabled()}
-            data-testid="generate-flashcards-button"
-          >
-            {isLoading ? 'Generowanie...' : 'Generuj fiszki'}
+          <Button type="submit" disabled={isGenerateButtonDisabled()} data-testid="generate-flashcards-button">
+            {isLoading ? "Generowanie..." : "Generuj fiszki"}
           </Button>
         </CardFooter>
       </form>

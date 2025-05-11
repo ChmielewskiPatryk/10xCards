@@ -1,28 +1,19 @@
-import { Button } from '@/components/ui/button';
-import type { FlashcardCandidateViewModel } from './types';
-import { Save } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import type { FlashcardCandidateViewModel } from "./types";
+import { Save } from "lucide-react";
 
-type SaveSelectedFlashcardsButtonProps = {
+interface SaveSelectedFlashcardsButtonProps {
   flashcards: FlashcardCandidateViewModel[];
   onSave: () => Promise<void>;
   isLoading: boolean;
-};
+}
 
-export function SaveSelectedFlashcardsButton({ 
-  flashcards, 
-  onSave, 
-  isLoading 
-}: SaveSelectedFlashcardsButtonProps) {
-  const selectedCount = flashcards.filter(f => f.isSelected).length;
+export function SaveSelectedFlashcardsButton({ flashcards, onSave, isLoading }: SaveSelectedFlashcardsButtonProps) {
+  const selectedCount = flashcards.filter((f) => f.isSelected).length;
   const isDisabled = selectedCount === 0 || isLoading;
-  
+
   return (
-    <Button
-      onClick={onSave}
-      disabled={isDisabled}
-      className="relative"
-      data-testid="save-selected-flashcards-button"
-    >
+    <Button onClick={onSave} disabled={isDisabled} className="relative" data-testid="save-selected-flashcards-button">
       {isLoading ? (
         <span className="flex items-center">
           <span className="animate-spin mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
@@ -36,4 +27,4 @@ export function SaveSelectedFlashcardsButton({
       )}
     </Button>
   );
-} 
+}

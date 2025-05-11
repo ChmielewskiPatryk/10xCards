@@ -37,4 +37,4 @@ journey
         Kliknięcie "Wyloguj": 16: Użytkownik
         Usunięcie sesji i tokena: 16: System
         Przekierowanie do strony logowania: 17: System
-``` 
+```

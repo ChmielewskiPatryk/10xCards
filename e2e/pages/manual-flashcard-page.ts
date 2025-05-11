@@ -1,5 +1,5 @@
-import type { Page, Locator } from '@playwright/test';
-import { expect } from '@playwright/test';
+import type { Page, Locator } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 export class ManualFlashcardPage {
   readonly page: Page;
@@ -12,17 +12,17 @@ export class ManualFlashcardPage {
 
   constructor(page: Page) {
     this.page = page;
-    this.frontContentInput = page.getByTestId('front-content-input');
-    this.backContentInput = page.getByTestId('back-content-input');
-    this.clearButton = page.getByTestId('clear-button');
-    this.saveButton = page.getByTestId('save-button');
-    this.confirmDialogConfirmButton = page.getByTestId('confirm-dialog-button');
-    this.confirmDialogCancelButton = page.getByTestId('cancel-dialog-button');
+    this.frontContentInput = page.getByTestId("front-content-input");
+    this.backContentInput = page.getByTestId("back-content-input");
+    this.clearButton = page.getByTestId("clear-button");
+    this.saveButton = page.getByTestId("save-button");
+    this.confirmDialogConfirmButton = page.getByTestId("confirm-dialog-button");
+    this.confirmDialogCancelButton = page.getByTestId("cancel-dialog-button");
   }
 
   async goto() {
-    await this.page.goto('/flashcards/new');
-    await this.page.waitForLoadState('networkidle');
+    await this.page.goto("/flashcards/new");
+    await this.page.waitForLoadState("networkidle");
   }
 
   async fillFlashcardForm(frontContent: string, backContent: string) {
@@ -47,8 +47,8 @@ export class ManualFlashcardPage {
   }
 
   async expectFormToBeEmpty() {
-    await expect(this.frontContentInput).toHaveValue('');
-    await expect(this.backContentInput).toHaveValue('');
+    await expect(this.frontContentInput).toHaveValue("");
+    await expect(this.backContentInput).toHaveValue("");
   }
 
   async expectSaveButtonState(enabled: boolean) {
@@ -60,14 +60,14 @@ export class ManualFlashcardPage {
   }
 
   async expectSuccessToast() {
-    await expect(this.page.getByText('Fiszka została pomyślnie zapisana')).toBeVisible();
+    await expect(this.page.getByText("Fiszka została pomyślnie zapisana")).toBeVisible();
   }
 
   async expectErrorToast(errorMessage?: string) {
     if (errorMessage) {
       await expect(this.page.getByText(errorMessage)).toBeVisible();
     } else {
-      await expect(this.page.getByText('Wystąpił błąd')).toBeVisible();
+      await expect(this.page.getByText("Wystąpił błąd")).toBeVisible();
     }
   }
-} 
+}

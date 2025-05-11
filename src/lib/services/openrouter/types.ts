@@ -1,11 +1,11 @@
 // Types for OpenRouter API
 export interface OpenRouterMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
 export interface OpenRouterResponseFormat {
-  type: 'json_schema';
+  type: "json_schema";
   json_schema: {
     name: string;
     strict: boolean;
@@ -29,15 +29,15 @@ export interface OpenRouterServiceConfig {
   apiKey: string;
   defaultModel?: string;
   baseURL?: string;
-  defaultParams?: Partial<Omit<OpenRouterRequest, 'messages' | 'model'>>;
+  defaultParams?: Partial<Omit<OpenRouterRequest, "messages" | "model">>;
   timeout?: number;
 }
 
-export interface ChatOptions extends Omit<OpenRouterRequest, 'response_format' | 'stream'> {
+export interface ChatOptions extends Omit<OpenRouterRequest, "response_format" | "stream"> {
   responseFormat?: OpenRouterResponseFormat;
 }
 
-export interface StreamChatOptions extends Omit<ChatOptions, 'onMessage' | 'onError'> {
+export interface StreamChatOptions extends Omit<ChatOptions, "onMessage" | "onError"> {
   onMessage: (message: any) => void;
   onError: (error: Error) => void;
 }
@@ -52,4 +52,4 @@ export interface ChatResponse {
     completion_tokens: number;
     total_tokens: number;
   };
-} 
+}

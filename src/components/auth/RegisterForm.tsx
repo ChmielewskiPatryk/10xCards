@@ -1,28 +1,30 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRegister, type RegisterInput } from '../hooks/useRegister';
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useRegister, type RegisterInput } from "../hooks/useRegister";
 
-const registerSchema = z.object({
-  email: z.string().email('Nieprawidłowy adres email'),
-  password: z
-    .string()
-    .min(8, 'Hasło musi mieć co najmniej 8 znaków')
-    .regex(/[A-Z]/, 'Hasło musi zawierać co najmniej jedną wielką literę')
-    .regex(/[0-9]/, 'Hasło musi zawierać co najmniej jedną cyfrę')
-    .regex(/[^A-Za-z0-9]/, 'Hasło musi zawierać co najmniej jeden znak specjalny'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Hasła nie są identyczne',
-  path: ['confirmPassword'],
-});
+const registerSchema = z
+  .object({
+    email: z.string().email("Nieprawidłowy adres email"),
+    password: z
+      .string()
+      .min(8, "Hasło musi mieć co najmniej 8 znaków")
+      .regex(/[A-Z]/, "Hasło musi zawierać co najmniej jedną wielką literę")
+      .regex(/[0-9]/, "Hasło musi zawierać co najmniej jedną cyfrę")
+      .regex(/[^A-Za-z0-9]/, "Hasło musi zawierać co najmniej jeden znak specjalny"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Hasła nie są identyczne",
+    path: ["confirmPassword"],
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function RegisterForm() {
   // useRegister hook handles server call, loading and errors
-  const { registerUser, isLoading, error } = useRegister();
+  const { registerUser, isLoading, error, redirectToLogin } = useRegister();
 
   const {
     register,
@@ -32,6 +34,13 @@ export default function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
+  // Effect to handle successful registration redirect
+  useEffect(() => {
+    if (redirectToLogin) {
+      window.location.href = "/auth/login?registered=1";
+    }
+  }, [redirectToLogin]);
+
   const onSubmit = async (data: RegisterFormData) => {
     // Call the API via useRegister hook
     const input: RegisterInput = {
@@ -39,11 +48,7 @@ export default function RegisterForm() {
       password: data.password,
       confirmPassword: data.confirmPassword,
     };
-    const success = await registerUser(input);
-    if (success) {
-      // Redirect to login with success flag
-      window.location.href = '/auth/login?registered=1';
-    }
+    await registerUser(input);
   };
 
   return (
@@ -59,15 +64,13 @@ export default function RegisterForm() {
           Email
         </label>
         <input
-          {...register('email')}
+          {...register("email")}
           type="email"
           id="email"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           placeholder="twoj@email.com"
         />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
       </div>
 
       <div>
@@ -75,15 +78,13 @@ export default function RegisterForm() {
           Hasło
         </label>
         <input
-          {...register('password')}
+          {...register("password")}
           type="password"
           id="password"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           placeholder="••••••••"
         />
-        {errors.password && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
-        )}
+        {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>}
       </div>
 
       <div>
@@ -91,7 +92,7 @@ export default function RegisterForm() {
           Potwierdź hasło
         </label>
         <input
-          {...register('confirmPassword')}
+          {...register("confirmPassword")}
           type="password"
           id="confirmPassword"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
@@ -116,8 +117,8 @@ export default function RegisterForm() {
         disabled={isLoading}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Rejestracja...' : 'Zarejestruj się'}
+        {isLoading ? "Rejestracja..." : "Zarejestruj się"}
       </button>
     </form>
   );
-} 
+}

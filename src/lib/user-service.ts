@@ -1,4 +1,4 @@
-import { fetchData, postData } from './api';
+import { fetchData, postData } from "./api";
 
 export interface User {
   id: string;
@@ -21,11 +21,11 @@ export class UserService {
   async getUser(userId: string): Promise<User> {
     return fetchData<User>(`/users/${userId}`);
   }
-  
+
   /**
    * Create a new user
    */
   async createUser(userData: NewUser): Promise<User> {
-    return postData<NewUser, User>('/users', userData);
+    return postData<NewUser, User>("/users", userData);
   }
-} 
+}

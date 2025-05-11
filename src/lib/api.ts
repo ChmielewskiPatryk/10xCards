@@ -2,7 +2,7 @@
  * API module for making HTTP requests
  */
 
-const BASE_URL = '/api';
+const BASE_URL = "/api";
 
 /**
  * Fetch data from the API
@@ -11,11 +11,11 @@ const BASE_URL = '/api';
  */
 export async function fetchData<T>(endpoint: string): Promise<T> {
   const response = await fetch(`${BASE_URL}${endpoint}`);
-  
+
   if (!response.ok) {
     throw new Error(`API error: ${response.status} ${response.statusText}`);
   }
-  
+
   return response.json();
 }
 
@@ -27,16 +27,16 @@ export async function fetchData<T>(endpoint: string): Promise<T> {
  */
 export async function postData<T, R>(endpoint: string, data: T): Promise<R> {
   const response = await fetch(`${BASE_URL}${endpoint}`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(data),
   });
-  
+
   if (!response.ok) {
     throw new Error(`API error: ${response.status} ${response.statusText}`);
   }
-  
+
   return response.json();
-} 
+}

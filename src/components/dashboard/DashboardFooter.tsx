@@ -1,8 +1,8 @@
-import * as React from 'react';
+import * as React from "react";
 
 const DashboardFooter: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <footer className="mt-12 py-6 border-t border-gray-200 dark:border-gray-800">
       <div className="flex flex-col md:flex-row justify-between items-center">
@@ -10,20 +10,20 @@ const DashboardFooter: React.FC = () => {
           &copy; {currentYear} 10xCards. Wszelkie prawa zastrzeżone.
         </div>
         <div className="flex space-x-6">
-          <a 
-            href="/privacy" 
+          <a
+            href="/privacy"
             className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             Polityka prywatności
           </a>
-          <a 
-            href="/terms" 
+          <a
+            href="/terms"
             className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             Regulamin
           </a>
-          <a 
-            href="/contact" 
+          <a
+            href="/contact"
             className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
           >
             Kontakt
@@ -37,4 +37,4 @@ const DashboardFooter: React.FC = () => {
   );
 };
 
-export default DashboardFooter; 
+export default DashboardFooter;

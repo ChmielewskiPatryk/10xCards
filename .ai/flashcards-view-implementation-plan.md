@@ -1,13 +1,16 @@
 # Plan implementacji widoku Przegląd fiszek
 
 ## 1. Przegląd
+
 Widok umożliwia zalogowanemu użytkownikowi przeglądanie, filtrowanie, sortowanie, paginację oraz zarządzanie (edycja, usuwanie) jego fiszkami.
 
 ## 2. Routing widoku
+
 Ścieżka: `/flashcards`
 Widok chroniony wymaga uwierzytelnienia użytkownika.
 
 ## 3. Struktura komponentów
+
 - **FlashcardsPage**
   - FilterSortControls
   - FlashcardsList
@@ -22,6 +25,7 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
 ## 4. Szczegóły komponentów
 
 ### FlashcardsPage
+
 - Opis: Kontener całej strony odpowiedzialny za zarządzanie stanem, wywołania API i obsługę interakcji.
 - Główne elementy:
   - Nagłówek strony
@@ -46,6 +50,7 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
 - Propsy: brak (samodzielny widok)
 
 ### FilterSortControls
+
 - Opis: Panel wyboru źródła fiszek, pola sortowania i kolejności.
 - Elementy:
   - Select dla `source` (`'all' | 'manual' | 'ai' | 'semi_ai'`)
@@ -60,6 +65,7 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
   - `FilterSortProps { source, sort, order, handlers }`
 
 ### FlashcardsList
+
 - Opis: Wyświetla listę fiszek lub placeholder jeśli pusta.
 - Elementy:
   - Lista komponentów `FlashcardCard`
@@ -72,6 +78,7 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
   - `FlashcardsListProps { items: FlashcardItem[], handlers }`
 
 ### FlashcardCard
+
 - Opis: Karta reprezentująca pojedynczą fiszkę.
 - Elementy:
   - `front_content` i `back_content`
@@ -85,6 +92,7 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
   - `handlers { onEdit, onDelete }`
 
 ### Pagination
+
 - Opis: Nawigacja między stronami fiszek.
 - Elementy:
   - Przycisk „Poprzednia”
@@ -96,6 +104,7 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
   - `PaginationProps { page: number, pages: number, onPageChange: (n: number) => void }`
 
 ### ConfirmDialog
+
 - Opis: Dialog potwierdzenia akcji (usuwanie).
 - Propsy:
   - `message: string`
@@ -103,6 +112,7 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
   - `onCancel: () => void`
 
 ### Toast
+
 - Opis: Powiadomienia o sukcesie lub błędzie.
 - Wywołanie:
   - `showToast(message: string, type: 'success' | 'error' | 'info')`
@@ -110,14 +120,17 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
   - `ToastType`
 
 ### Button
+
 - Opis: Uniwersalny przycisk UI z wariantami (primary, danger itp.)
 
 ### LoadingSpinner
+
 - Opis: Wskaźnik ładowania dla oczekiwania na dane.
 
 ## 5. Typy
 
 ### FlashcardItem
+
 - `id: string`
 - `front_content: string`
 - `back_content: string`
@@ -126,23 +139,28 @@ Widok chroniony wymaga uwierzytelnienia użytkownika.
 - `updated_at: string`
 
 ### Pagination
+
 - `total: number`
 - `page: number`
 - `limit: number`
 - `pages: number`
 
 ### FilterSort
+
 - `source: 'manual' | 'ai' | 'semi_ai' | 'all'`
 - `sort: 'created_at' | 'updated_at'`
 - `order: 'asc' | 'desc'`
 
 ### FlashcardsPageViewModel
+
 - `items: FlashcardItem[]`
 - `pagination: Pagination`
 - `filters: FilterSort`
 
 ## 6. Zarządzanie stanem
+
 Stan utrzymywany w `FlashcardsPage` lub w custom hooku `useFlashcards`:
+
 - `loading: boolean`
 - `error: string | null`
 - `data: FlashcardItem[]`
@@ -150,11 +168,15 @@ Stan utrzymywany w `FlashcardsPage` lub w custom hooku `useFlashcards`:
 - `filters: FilterSort`
 
 **Custom hook** `useFlashcards(filters, page)` zwraca:
+
 ```ts
-{ data, pagination, loading, error, refresh }
+{
+  data, pagination, loading, error, refresh;
+}
 ```
 
 ## 7. Integracja API
+
 - Endpoint: `GET /api/flashcards?page=&limit=20&sort=&order=&source=`
 - Request: brak body
 - Response:
@@ -167,6 +189,7 @@ Stan utrzymywany w `FlashcardsPage` lub w custom hooku `useFlashcards`:
 - Obsługa błędów HTTP 401 (redirect), 500 (toast)
 
 ## 8. Interakcje użytkownika
+
 - Zmiana filtra → fetch z nowymi parametrami
 - Zmiana sortowania → fetch
 - Klik paginacji → fetch
@@ -175,17 +198,20 @@ Stan utrzymywany w `FlashcardsPage` lub w custom hooku `useFlashcards`:
 - Wyświetlenie toast po sukcesie/błędzie
 
 ## 9. Warunki i walidacja
+
 - UI zapewnia, że `page ≥ 1`, `limit ≤ 100`
 - Selekty dla `source`, `sort`, `order` zawierają tylko poprawne wartości
 - Blokada przycisków paginacji (gdy `page === 1` lub `page === pages`)
 
 ## 10. Obsługa błędów
+
 - Błąd sieci/timeout → toast z komunikatem, retry button
 - Błąd 401 → przekierowanie do strony logowania
 - Błąd 500 → toast z komunikatem serwera
 - Brak fiszek → wyświetlenie komunikatu „Brak fiszek” zamiast listy
 
 ## 11. Kroki implementacji
+
 1. Utworzenie pliku `/src/pages/flashcards.astro` lub `.tsx` w Astro
 2. Implementacja `FlashcardsPage` z importem i układem komponentów
 3. Stworzenie i przetestowanie komponentu `FilterSortControls`

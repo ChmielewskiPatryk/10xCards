@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { Button } from '@/components/ui/button';
+import * as React from "react";
+import { Button } from "@/components/ui/button";
 
-export type PaginationProps = {
+export interface PaginationProps {
   page: number;
   pages: number;
   onPageChange: (n: number) => void;
-};
+}
 
 export function Pagination({ page, pages, onPageChange }: PaginationProps) {
   if (pages <= 1) {
@@ -18,12 +18,7 @@ export function Pagination({ page, pages, onPageChange }: PaginationProps) {
         Poprzednia
       </Button>
       {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
-        <Button
-          key={n}
-          size="sm"
-          variant={n === page ? 'secondary' : 'outline'}
-          onClick={() => onPageChange(n)}
-        >
+        <Button key={n} size="sm" variant={n === page ? "secondary" : "outline"} onClick={() => onPageChange(n)}>
           {n}
         </Button>
       ))}
@@ -32,4 +27,4 @@ export function Pagination({ page, pages, onPageChange }: PaginationProps) {
       </Button>
     </div>
   );
-} 
+}

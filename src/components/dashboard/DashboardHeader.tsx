@@ -1,23 +1,23 @@
-import * as React from 'react';
-import UserInfo from '@/components/dashboard/UserInfo';
-import type { DashboardHeaderProps } from './types';
-import useAuth from '@/components/hooks/useAuth';
+import * as React from "react";
+import UserInfo from "@/components/dashboard/UserInfo";
+import type { DashboardHeaderProps } from "./types";
+import useAuth from "@/components/hooks/useAuth";
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
   const { signOut } = useAuth();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
-  
+
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
       await signOut();
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error("Logout failed:", error);
     } finally {
       setIsLoggingOut(false);
     }
   };
-  
+
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
       <div className="container mx-auto px-4">
@@ -42,4 +42,4 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ user }) => {
   );
 };
 
-export default DashboardHeader; 
+export default DashboardHeader;

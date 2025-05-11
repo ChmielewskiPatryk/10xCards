@@ -18,8 +18,10 @@ const gitignorePath = path.resolve(__dirname, ".gitignore");
 const baseConfig = tseslint.config({
   extends: [eslint.configs.recommended, tseslint.configs.strict, tseslint.configs.stylistic],
   rules: {
-    "no-console": "warn",
+    "no-console": "off",
     "no-unused-vars": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
   },
 });
 
@@ -56,8 +58,14 @@ const reactConfig = tseslint.config({
   },
 });
 
+// Additional files to ignore
+const ignorePatterns = tseslint.config({
+  ignores: ["**/*.astro"],
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
+  ignorePatterns,
   baseConfig,
   jsxA11yConfig,
   reactConfig,

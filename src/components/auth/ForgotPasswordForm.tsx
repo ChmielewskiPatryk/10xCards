@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Nieprawidłowy adres email'),
+  email: z.string().email("Nieprawidłowy adres email"),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -26,10 +26,10 @@ export default function ForgotPasswordForm() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/auth/reset-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/reset-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: data.email }),
       });
@@ -37,12 +37,12 @@ export default function ForgotPasswordForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Wystąpił błąd podczas wysyłania linku resetującego');
+        throw new Error(result.error || "Wystąpił błąd podczas wysyłania linku resetującego");
       }
 
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas wysyłania linku resetującego');
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas wysyłania linku resetującego");
     } finally {
       setIsLoading(false);
     }
@@ -77,15 +77,13 @@ export default function ForgotPasswordForm() {
           Email
         </label>
         <input
-          {...register('email')}
+          {...register("email")}
           type="email"
           id="email"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
           placeholder="twoj@email.com"
         />
-        {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-        )}
+        {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>}
       </div>
 
       <div className="text-center">
@@ -102,8 +100,8 @@ export default function ForgotPasswordForm() {
         disabled={isLoading}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Wysyłanie...' : 'Wyślij link resetujący'}
+        {isLoading ? "Wysyłanie..." : "Wyślij link resetujący"}
       </button>
     </form>
   );
-} 
+}

@@ -1,16 +1,16 @@
-import type { APIRoute } from 'astro';
-import { z } from 'zod';
-import type { PaginatedResponse, Flashcard, CreateFlashcardCommand } from '../../../types';
-import { flashcardService } from '../../../lib/services/flashcard-service';
-import { loggerService } from '../../../lib/services/logger-service';
+import type { APIRoute } from "astro";
+import { z } from "zod";
+import type { CreateFlashcardCommand } from "../../../types";
+import { flashcardService } from "../../../lib/services/flashcard-service";
+import { loggerService } from "../../../lib/services/logger-service";
 
 // Schema for validating query parameters
 export const getFlashcardsQuerySchema = z.object({
   page: z.coerce.number().positive().default(1),
   limit: z.coerce.number().positive().max(100).default(20),
-  sort: z.enum(['created_at', 'updated_at']).default('created_at'),
-  order: z.enum(['asc', 'desc']).default('desc'),
-  source: z.enum(['manual', 'ai', 'semi_ai']).optional(),
+  sort: z.enum(["created_at", "updated_at"]).default("created_at"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+  source: z.enum(["manual", "ai", "semi_ai"]).optional(),
 });
 
 export type GetFlashcardsQueryParams = z.infer<typeof getFlashcardsQuerySchema>;
@@ -25,7 +25,7 @@ type CreateFlashcardBody = z.infer<typeof createFlashcardSchema>;
 
 /**
  * API endpoint for retrieving user's flashcards with optional filtering, sorting, and pagination
- * 
+ *
  * @endpoint GET /api/flashcards
  * @param page - Page number, default 1
  * @param limit - Items per page, default 20, maximum 100
@@ -37,61 +37,58 @@ type CreateFlashcardBody = z.infer<typeof createFlashcardSchema>;
 export const GET: APIRoute = async ({ request, locals }) => {
   // Użyj ID zalogowanego użytkownika
   const userId = locals.user?.id;
-  
+
   // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
   if (!userId) {
-    return new Response(
-      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: "Unauthorized - Please log in to access this resource" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-  
+
   try {
     // 1. Parse and validate query parameters
     const url = new URL(request.url);
     const queryParams = Object.fromEntries(url.searchParams);
-    
+
     // 2. Validate against schema
     const validationResult = getFlashcardsQuerySchema.safeParse(queryParams);
     if (!validationResult.success) {
-      const errorMessage = 'Validation error in query parameters';
-      await loggerService.logError(userId, 'VALIDATION_FAILED', errorMessage);
-      
-      return new Response(
-        JSON.stringify({ error: errorMessage, details: validationResult.error.format() }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      const errorMessage = "Validation error in query parameters";
+      await loggerService.logError(userId, "VALIDATION_FAILED", errorMessage);
+
+      return new Response(JSON.stringify({ error: errorMessage, details: validationResult.error.format() }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
-    
+
     const params = validationResult.data;
-    
+
     // 3. Call FlashcardService to get user's flashcards, passing the authenticated Supabase client
     const result = await flashcardService.getUserFlashcards(userId, params, locals.supabase);
-    
+
     // 4. Return formatted response
-    return new Response(
-      JSON.stringify(result),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(result), { status: 200, headers: { "Content-Type": "application/json" } });
   } catch (error) {
-    console.error('Error in /api/flashcards:', error);
-    
+    console.error("Error in /api/flashcards:", error);
+
     // Determine the appropriate error status and message
-    let status = 500;
-    let errorCode = 'INTERNAL_ERROR';
-    let errorMessage = 'An internal server error occurred';
-    
+    const status = 500;
+    const errorCode = "INTERNAL_ERROR";
+    let errorMessage = "An internal server error occurred";
+
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    
+
     // Log the error
     await loggerService.logError(userId, errorCode, errorMessage);
-    
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status, headers: { 'Content-Type': 'application/json' } }
-    );
+
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 };
 
@@ -106,26 +103,26 @@ export const GET: APIRoute = async ({ request, locals }) => {
 export const POST: APIRoute = async ({ request, locals }) => {
   // Użyj ID zalogowanego użytkownika
   const userId = locals.user?.id;
-  
+
   // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
   if (!userId) {
-    return new Response(
-      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: "Unauthorized - Please log in to access this resource" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-  
+
   try {
     // Parse and validate request body
     const body = await request.json();
     const validationResult = createFlashcardSchema.safeParse(body);
     if (!validationResult.success) {
-      const errorMessage = 'Validation error in request body';
-      await loggerService.logError(userId, 'VALIDATION_FAILED', errorMessage);
-      return new Response(
-        JSON.stringify({ error: errorMessage, details: validationResult.error.format() }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
-      );
+      const errorMessage = "Validation error in request body";
+      await loggerService.logError(userId, "VALIDATION_FAILED", errorMessage);
+      return new Response(JSON.stringify({ error: errorMessage, details: validationResult.error.format() }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
     }
     // Build command object from validated data
     const { front_content, back_content } = validationResult.data;
@@ -135,20 +132,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Return the created flashcard
     return new Response(JSON.stringify(flashcard), {
       status: 201,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error('Error in POST /api/flashcards:', error);
-    let status = 500;
-    let errorCode = 'INTERNAL_ERROR';
-    let errorMessage = 'An internal server error occurred';
+    console.error("Error in POST /api/flashcards:", error);
+    const status = 500;
+    const errorCode = "INTERNAL_ERROR";
+    let errorMessage = "An internal server error occurred";
     if (error instanceof Error) {
       errorMessage = error.message;
     }
     await loggerService.logError(userId, errorCode, errorMessage);
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-}; 
+};

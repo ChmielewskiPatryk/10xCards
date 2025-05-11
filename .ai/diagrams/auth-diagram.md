@@ -72,4 +72,4 @@ sequenceDiagram
         P->>S: refreshToken()
         S-->>P: Nowy token JWT
     end
-``` 
+```

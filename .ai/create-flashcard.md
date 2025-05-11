@@ -1,9 +1,11 @@
 # API Endpoint Implementation Plan: POST /api/flashcards
 
 ## 1. Overview of the Endpoint
+
 The endpoint allows an authenticated user to create a new flashcard in the system. Data is stored in the `flashcards` table in Supabase, following the default rules and triggers (defaults for `id`, `source`, `created_at`, `updated_at`).
 
 ## 2. Request Details
+
 - HTTP Method: POST
 - Path: `/api/flashcards`
 - Headers:
@@ -22,6 +24,7 @@ The endpoint allows an authenticated user to create a new flashcard in the syste
   ```
 
 ## 3. Types Used
+
 - DTO / Command:
   - `CreateFlashcardCommand` (from `src/types.ts`):
     ```ts
@@ -37,7 +40,7 @@ The endpoint allows an authenticated user to create a new flashcard in the syste
       id: string;
       front_content: string;
       back_content: string;
-      source: 'manual' | 'ai' | 'semi_ai';
+      source: "manual" | "ai" | "semi_ai";
       ai_metadata: object | null;
       created_at: string;
       updated_at: string;
@@ -45,6 +48,7 @@ The endpoint allows an authenticated user to create a new flashcard in the syste
     ```
 
 ## 4. Response Details
+
 - Success (201 Created):
   ```json
   {
@@ -63,6 +67,7 @@ The endpoint allows an authenticated user to create a new flashcard in the syste
   - 500 Internal Server Error – server or database error
 
 ## 5. Data Flow
+
 1. Client sends POST /api/flashcards with JSON.
 2. Astro Server Endpoint (`src/pages/api/flashcards.ts`) loads `supabase` from `context.locals`.
 3. Parses and validates the body using Zod (schema limiting type and length).
@@ -72,22 +77,26 @@ The endpoint allows an authenticated user to create a new flashcard in the syste
 6. Endpoint maps the result to `Flashcard` and returns 201 + JSON.
 
 ## 6. Security Considerations
+
 - Input validation: Zod schema protects against empty or too long strings.
 - SQL Injection protection: using Supabase SDK.
 
 ## 7. Error Handling
-| Status | Cause                             | Action                      |
-| ------ | ------------------------------------- | ------------------------------ |
-| 400    | Zod.validate failed             | Return JSON with validation description  |
-| 401    | Missing or invalid token                 | Return `{ error: 'Unauthorized'}`|
+
+| Status | Cause                              | Action                                                              |
+| ------ | ---------------------------------- | ------------------------------------------------------------------- |
+| 400    | Zod.validate failed                | Return JSON with validation description                             |
+| 401    | Missing or invalid token           | Return `{ error: 'Unauthorized'}`                                   |
 | 500    | Insert error / unhandled exception | Log to `system_logs` and return `{ error: 'Internal Server Error'}` |
 
 ## 8. Performance Considerations
+
 - Operation is a single `INSERT` → minimal load.
 - Index on `user_id` supports future GET queries.
 - Avoid unnecessary reads – return only the created record.
 
 ## 9. Deployment Steps
+
 1. **Define Zod schema** for `CreateFlashcardCommand` in `src/pages/api/flashcards.ts`.
 2. **Create service** `flashcardsService.createFlashcard` in `src/lib/services/flashcards.service.ts`.
 3. **Implement Endpoint**:

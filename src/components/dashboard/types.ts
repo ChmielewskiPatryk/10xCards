@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 export interface User {
   id: string;
@@ -30,4 +30,4 @@ export interface UserInfoProps {
 export interface DashboardHeaderProps {
   user: User;
   activePath?: string;
-} 
+}

@@ -22,6 +22,7 @@ npm run test:coverage
 ### Unit Testing Guidelines
 
 1. **Use test doubles appropriately**
+
    - `vi.fn()` for function mocks
    - `vi.spyOn()` to monitor existing functions
    - `vi.mock()` with factory patterns for module-level mocking
@@ -31,6 +32,7 @@ npm run test:coverage
 3. **Follow the Arrange-Act-Assert pattern** for clear test structure
 
 4. **Use inline snapshots** for readable assertions:
+
    ```typescript
    expect(value).toMatchInlineSnapshot();
    ```
@@ -60,22 +62,25 @@ npm run test:e2e:codegen
 ### E2E Testing Guidelines
 
 1. **Use Page Object Model** for maintainable tests
+
    - Create page classes in `e2e/pages/` folder
    - Encapsulate page elements and actions
 
 2. **Use locators** for resilient element selection:
+
    ```typescript
-   page.getByRole('button', { name: 'Submit' })
+   page.getByRole("button", { name: "Submit" });
    ```
 
 3. **Use browser contexts** for isolating test environments
 
 4. **Use visual comparison** for UI testing:
+
    ```typescript
-   await expect(page).toHaveScreenshot('mypage.png');
+   await expect(page).toHaveScreenshot("mypage.png");
    ```
 
 5. **Use trace viewer** for debugging test failures:
    ```typescript
-   test.use({ trace: 'on' });
-   ``` 
+   test.use({ trace: "on" });
+   ```

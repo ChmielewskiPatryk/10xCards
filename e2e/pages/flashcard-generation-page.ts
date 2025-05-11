@@ -1,4 +1,4 @@
-import type { Page, Locator } from '@playwright/test';
+import type { Page, Locator } from "@playwright/test";
 
 export class FlashcardGenerationPage {
   readonly page: Page;
@@ -9,20 +9,20 @@ export class FlashcardGenerationPage {
   readonly flashcardsList: Locator;
   readonly flashcardsSelectedCount: Locator;
   readonly saveSelectedButton: Locator;
-  
+
   constructor(page: Page) {
     this.page = page;
-    this.sourceTextInput = page.getByTestId('source-text-input');
-    this.maxFlashcardsInput = page.getByTestId('max-flashcards-input');
-    this.generateButton = page.getByTestId('generate-flashcards-button');
-    this.characterCount = page.getByTestId('character-count');
-    this.flashcardsList = page.getByTestId('flashcards-candidate-list');
-    this.flashcardsSelectedCount = page.getByTestId('flashcards-selected-count');
-    this.saveSelectedButton = page.getByTestId('save-selected-flashcards-button');
+    this.sourceTextInput = page.getByTestId("source-text-input");
+    this.maxFlashcardsInput = page.getByTestId("max-flashcards-input");
+    this.generateButton = page.getByTestId("generate-flashcards-button");
+    this.characterCount = page.getByTestId("character-count");
+    this.flashcardsList = page.getByTestId("flashcards-candidate-list");
+    this.flashcardsSelectedCount = page.getByTestId("flashcards-selected-count");
+    this.saveSelectedButton = page.getByTestId("save-selected-flashcards-button");
   }
 
   async goto() {
-    await this.page.goto('/generate');
+    await this.page.goto("/generate");
   }
 
   async fillSourceText(text: string) {
@@ -60,4 +60,4 @@ export class FlashcardGenerationPage {
   getFlashcardBack(index: number): Locator {
     return this.page.getByTestId(`flashcard-back-${index}`);
   }
-} 
+}

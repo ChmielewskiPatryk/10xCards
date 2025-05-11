@@ -1,58 +1,52 @@
-import type { FlashcardCandidateViewModel } from './types';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Edit, Trash2 } from 'lucide-react';
+import type { FlashcardCandidateViewModel } from "./types";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Edit, Trash2 } from "lucide-react";
 
-type FlashcardCandidateItemProps = {
+interface FlashcardCandidateItemProps {
   flashcard: FlashcardCandidateViewModel;
   index: number;
   onSelect: (index: number) => void;
   onEdit: (index: number) => void;
   onReject: (index: number) => void;
-};
+}
 
-export function FlashcardCandidateItem({
-  flashcard,
-  index,
-  onSelect,
-  onEdit,
-  onReject
-}: FlashcardCandidateItemProps) {
+export function FlashcardCandidateItem({ flashcard, index, onSelect, onEdit, onReject }: FlashcardCandidateItemProps) {
   return (
-    <Card 
+    <Card
       className={`
         border-l-4 
-        ${flashcard.isSelected ? 'border-l-blue-600' : 'border-l-gray-200'}
-        ${flashcard.wasEdited ? 'bg-blue-50' : ''}
+        ${flashcard.isSelected ? "border-l-blue-600" : "border-l-gray-200"}
+        ${flashcard.wasEdited ? "bg-blue-50" : ""}
       `}
       data-testid={`flashcard-candidate-${index}`}
     >
       <CardContent className="pt-6">
         <div className="flex items-start gap-3">
-          <Checkbox 
+          <Checkbox
             id={`flashcard-${index}`}
             checked={flashcard.isSelected}
             onCheckedChange={() => onSelect(index)}
             className="mt-0.5"
             data-testid={`flashcard-checkbox-${index}`}
           />
-          
+
           <div className="flex-1 space-y-4">
             <div>
-              <label 
-                htmlFor={`flashcard-${index}`} 
+              <label
+                htmlFor={`flashcard-${index}`}
                 className="text-lg font-medium cursor-pointer"
                 data-testid={`flashcard-front-${index}`}
               >
                 {flashcard.front_content}
               </label>
             </div>
-            
+
             <div className="bg-gray-50 p-3 rounded-md" data-testid={`flashcard-back-${index}`}>
               <p className="text-gray-800">{flashcard.back_content}</p>
             </div>
-            
+
             {flashcard.wasEdited && (
               <div className="text-xs text-blue-600" data-testid={`flashcard-edited-indicator-${index}`}>
                 Edytowano ręcznie
@@ -61,7 +55,7 @@ export function FlashcardCandidateItem({
           </div>
         </div>
       </CardContent>
-      
+
       <CardFooter className="flex justify-end gap-2 pt-0 pb-4">
         <Button
           variant="outline"
@@ -72,7 +66,7 @@ export function FlashcardCandidateItem({
           <Edit className="h-4 w-4 mr-2" />
           Edytuj
         </Button>
-        
+
         <Button
           variant="outline"
           size="sm"
@@ -86,4 +80,4 @@ export function FlashcardCandidateItem({
       </CardFooter>
     </Card>
   );
-} 
+}

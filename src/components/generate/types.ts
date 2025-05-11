@@ -1,4 +1,4 @@
-import type { FlashcardCandidate } from '../../types';
+import type { FlashcardCandidate } from "../../types";
 
 // Definicje typów dla komponentów generowania fiszek
 export type FlashcardCandidateViewModel = FlashcardCandidate & {
@@ -7,16 +7,16 @@ export type FlashcardCandidateViewModel = FlashcardCandidate & {
   wasEdited: boolean;
 };
 
-export type GenerationState = {
-  status: 'idle' | 'loading' | 'success' | 'error';
+export interface GenerationState {
+  status: "idle" | "loading" | "success" | "error";
   flashcards: FlashcardCandidateViewModel[];
   error: string | null;
   startTime: number | null;
-};
+}
 
-export type GenerateFlashcardsFormData = {
+export interface GenerateFlashcardsFormData {
   source_text: string;
   options: {
     max_flashcards: number;
   };
-}; 
+}

@@ -27,6 +27,7 @@ Plan obejmuje testowanie:
 ## 3. Typy testów
 
 ### 3.1 Testy jednostkowe
+
 - **Narzędzia**: Vitest, React Testing Library
 - **Zakres**: Komponenty UI, hooki, funkcje pomocnicze, serwisy
 - **Cele**: Weryfikacja poprawności działania poszczególnych jednostek kodu
@@ -36,6 +37,7 @@ Plan obejmuje testowanie:
   - Hooki niestandardowe
 
 ### 3.2 Testy integracyjne
+
 - **Narzędzia**: Vitest, msw (do mockowania API)
 - **Zakres**: Interakcje między komponentami, integracja frontend-backend
 - **Cele**: Sprawdzenie poprawnej komunikacji między komponentami i serwisami
@@ -45,8 +47,9 @@ Plan obejmuje testowanie:
   - Zarządzanie sesją nauki
 
 ### 3.3 Testy API
+
 - **Narzędzia**: Vitest, Supertest
-- **Zakres**: Wszystkie endpointy API (/api/flashcards/*, /api/auth/*)
+- **Zakres**: Wszystkie endpointy API (/api/flashcards/_, /api/auth/_)
 - **Cele**: Weryfikacja poprawności, bezpieczeństwa i wydajności API
 - **Priorytety**:
   - CRUD dla fiszek
@@ -55,6 +58,7 @@ Plan obejmuje testowanie:
   - Endpointy autentykacji
 
 ### 3.4 Testy E2E
+
 - **Narzędzia**: Playwright
 - **Zakres**: Przepływy użytkownika end-to-end
 - **Cele**: Testowanie pełnych scenariuszy użytkowania
@@ -65,6 +69,7 @@ Plan obejmuje testowanie:
   - Sesje nauki
 
 ### 3.5 Testy wydajnościowe
+
 - **Narzędzia**: Lighthouse, WebPageTest
 - **Zakres**: Czas ładowania stron, wydajność renderowania
 - **Cele**: Optymalizacja wydajności i doświadczenia użytkownika
@@ -74,6 +79,7 @@ Plan obejmuje testowanie:
   - Optymalizacja rozmiarów paczek JS
 
 ### 3.6 Testy bezpieczeństwa
+
 - **Narzędzia**: OWASP ZAP, ręczne testowanie
 - **Zakres**: Autentykacja, autoryzacja, zabezpieczenie API
 - **Cele**: Identyfikacja podatności i zapewnienie ochrony danych
@@ -83,6 +89,7 @@ Plan obejmuje testowanie:
   - Zabezpieczenie API przed atakami
 
 ### 3.7 Testy dostępności
+
 - **Narzędzia**: Axe, Lighthouse
 - **Zakres**: Wszystkie strony i komponenty UI
 - **Cele**: Zapewnienie zgodności z WCAG 2.1 AA
@@ -94,6 +101,7 @@ Plan obejmuje testowanie:
 ## 4. Scenariusze testowe dla kluczowych funkcjonalności
 
 ### 4.1 Autentykacja użytkowników
+
 1. Rejestracja nowego użytkownika
 2. Logowanie istniejącego użytkownika
 3. Odzyskiwanie hasła
@@ -101,6 +109,7 @@ Plan obejmuje testowanie:
 5. Weryfikacja zabezpieczeń sesji
 
 ### 4.2 Zarządzanie fiszkami
+
 1. Tworzenie nowej fiszki manualnie
 2. Edycja istniejącej fiszki
 3. Usuwanie fiszki
@@ -108,6 +117,7 @@ Plan obejmuje testowanie:
 5. Filtrowanie i sortowanie fiszek
 
 ### 4.3 Generowanie fiszek przez AI
+
 1. Wysyłanie tekstu źródłowego do AI
 2. Otrzymywanie propozycji fiszek
 3. Edycja propozycji przed zapisaniem
@@ -115,6 +125,7 @@ Plan obejmuje testowanie:
 5. Obsługa błędów API AI
 
 ### 4.4 Sesje nauki (opcjonalnie)
+
 1. Rozpoczynanie nowej sesji
 2. Przechodzenie przez fiszki w sesji
 3. Ocenianie znajomości materiału
@@ -122,12 +133,14 @@ Plan obejmuje testowanie:
 5. Przeglądanie historii sesji
 
 ### 4.5 Panel użytkownika (opcjonalnie)
+
 1. Przeglądanie statystyk nauki
 2. Zmiana ustawień konta
 
 ## 5. Środowisko testowe
 
 ### 5.1 Środowiska
+
 1. **Lokalne** - na maszynach deweloperskich
 2. **Deweloperskie** - środowisko CI/CD
 3. **Testowe** - dedykowane środowisko z izolowaną bazą danych
@@ -135,6 +148,7 @@ Plan obejmuje testowanie:
 5. **Produkcyjne** - do testów smoke i monitoringu
 
 ### 5.2 Konfiguracja
+
 - Supabase w wersji lokalnej dla testów integracyjnych
 - Mocki dla API AI w testach jednostkowych i integracyjnych
 - Izolowane bazy danych dla każdego środowiska
@@ -175,15 +189,18 @@ Plan obejmuje testowanie:
 ## 9. Role i odpowiedzialności
 
 1. **Deweloperzy**:
+
    - Tworzenie i utrzymanie testów jednostkowych
    - Współpraca przy naprawianiu błędów
 
 2. **QA**:
+
    - Projektowanie i wykonywanie testów manualnych
    - Tworzenie i utrzymanie testów E2E
    - Raportowanie błędów i monitorowanie ich naprawy
 
 3. **DevOps**:
+
    - Konfiguracja i utrzymanie środowisk testowych
    - Automatyzacja testów w pipeline CI/CD
 
@@ -194,17 +211,20 @@ Plan obejmuje testowanie:
 ## 10. Procedury raportowania błędów
 
 1. **Klasyfikacja błędów**:
+
    - **Krytyczne** - uniemożliwiają korzystanie z kluczowych funkcji
    - **Wysokie** - znacząco utrudniają korzystanie z aplikacji
    - **Średnie** - powodują problemy, ale istnieje obejście
    - **Niskie** - drobne błędy, głównie kosmetyczne
 
 2. **Proces raportowania**:
+
    - Wszystkie błędy raportowane w systemie GitHub Issues
    - Wymagane informacje: środowisko, kroki reprodukcji, oczekiwane vs. aktualne zachowanie
    - Załączanie zrzutów ekranu/nagrań wideo dla wizualnych problemów
 
 3. **Proces naprawy**:
+
    - Błędy krytyczne i wysokie naprawiane natychmiast
    - Błędy średnie planowane do najbliższego sprintu
    - Błędy niskie oceniane i planowane zgodnie z priorytetami
@@ -216,6 +236,7 @@ Plan obejmuje testowanie:
 ## 11. Zarządzanie ryzykiem
 
 1. **Zidentyfikowane ryzyka**:
+
    - Problemy z wydajnością przy dużej liczbie fiszek
    - Ograniczenia API AI (limity, koszty, dostępność)
    - Błędy integracji z Supabase
@@ -230,6 +251,7 @@ Plan obejmuje testowanie:
 ## 12. Metryki i raportowanie
 
 1. **Kluczowe metryki**:
+
    - Liczba i kategorie znalezionych defektów
    - Pokrycie kodu testami
    - Czas naprawy defektów

@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Page } from "@playwright/test";
 
 export class FlashcardManagementPage {
   readonly page: Page;
@@ -9,13 +9,13 @@ export class FlashcardManagementPage {
 
   // Navigation
   async goto() {
-    await this.page.goto('/flashcards');
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.goto("/flashcards");
+    await this.page.waitForLoadState("domcontentloaded");
   }
 
   // Selectors
   get flashcardsList() {
-    return this.page.getByTestId('flashcards-list');
+    return this.page.getByTestId("flashcards-list");
   }
 
   get flashcardItems() {
@@ -31,11 +31,11 @@ export class FlashcardManagementPage {
   }
 
   get confirmDeleteButton() {
-    return this.page.getByTestId('confirm-dialog-button');
+    return this.page.getByTestId("confirm-dialog-button");
   }
 
   get cancelDeleteButton() {
-    return this.page.getByTestId('cancel-delete-button');
+    return this.page.getByTestId("cancel-delete-button");
   }
 
   // Actions
@@ -61,31 +61,31 @@ export class FlashcardManagementPage {
 
   // Edit form selectors
   get editDialog() {
-    return this.page.getByTestId('edit-flashcard-dialog');
+    return this.page.getByTestId("edit-flashcard-dialog");
   }
 
   get editFrontContent() {
-    return this.page.getByTestId('edit-front-content');
+    return this.page.getByTestId("edit-front-content");
   }
 
   get editBackContent() {
-    return this.page.getByTestId('edit-back-content');
+    return this.page.getByTestId("edit-back-content");
   }
 
   get editSaveButton() {
-    return this.page.getByTestId('edit-save-button');
+    return this.page.getByTestId("edit-save-button");
   }
 
   get editCancelButton() {
-    return this.page.getByTestId('edit-cancel-button');
+    return this.page.getByTestId("edit-cancel-button");
   }
 
   get frontContentError() {
-    return this.page.getByTestId('front-content-error');
+    return this.page.getByTestId("front-content-error");
   }
 
   get backContentError() {
-    return this.page.getByTestId('back-content-error');
+    return this.page.getByTestId("back-content-error");
   }
 
   // Edit actions
@@ -104,11 +104,11 @@ export class FlashcardManagementPage {
 
   async getFlashcardContent(index: number) {
     const flashcard = this.flashcardItems.nth(index);
-    const id = await flashcard.getAttribute('data-testid').then(value => value?.replace('flashcard-', ''));
-    if (!id) throw new Error('Could not find flashcard ID');
-    
+    const id = await flashcard.getAttribute("data-testid").then((value) => value?.replace("flashcard-", ""));
+    if (!id) throw new Error("Could not find flashcard ID");
+
     const front = await this.page.getByTestId(`flashcard-front-${id}`).textContent();
     const back = await this.page.getByTestId(`flashcard-back-${id}`).textContent();
     return { front, back };
   }
-} 
+}

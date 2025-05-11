@@ -1,11 +1,11 @@
 import { toast } from "sonner";
 
-type ToastProps = {
+interface ToastProps {
   title?: string;
   description?: string;
   variant?: "default" | "destructive";
   duration?: number;
-};
+}
 
 export function useToast() {
   return {
@@ -16,11 +16,11 @@ export function useToast() {
           duration,
         });
       }
-      
+
       return toast.success(title, {
         description,
         duration,
       });
     },
   };
-} 
+}

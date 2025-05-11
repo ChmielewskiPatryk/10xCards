@@ -3,6 +3,7 @@
 ## 1. Tabele
 
 ### 1.1. users
+
 ```sql
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -27,6 +28,7 @@ EXECUTE FUNCTION update_updated_at();
 ```
 
 ### 1.2. flashcards
+
 ```sql
 CREATE TYPE flashcard_source AS ENUM ('manual', 'ai', 'semi_ai');
 
@@ -39,7 +41,7 @@ CREATE TABLE flashcards (
     ai_metadata JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    
+
     CONSTRAINT valid_ai_metadata CHECK (
         (source = 'ai' OR source = 'semi_ai') AND ai_metadata IS NOT NULL
         OR
@@ -58,7 +60,7 @@ EXECUTE FUNCTION update_updated_at();
 CREATE OR REPLACE FUNCTION update_flashcard_source()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.source = 'ai' AND 
+    IF OLD.source = 'ai' AND
        (OLD.front_content != NEW.front_content OR OLD.back_content != NEW.back_content) THEN
         NEW.source = 'semi_ai';
     END IF;
@@ -73,6 +75,7 @@ EXECUTE FUNCTION update_flashcard_source();
 ```
 
 ### 1.3. flashcard_reviews
+
 ```sql
 CREATE TABLE flashcard_reviews (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -90,6 +93,7 @@ CREATE INDEX flashcard_reviews_next_review_date_idx ON flashcard_reviews(next_re
 ```
 
 ### 1.4. study_sessions
+
 ```sql
 CREATE TABLE study_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -105,6 +109,7 @@ CREATE INDEX study_sessions_start_time_idx ON study_sessions(start_time);
 ```
 
 ### 1.5. session_reviews
+
 ```sql
 CREATE TABLE session_reviews (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -112,7 +117,7 @@ CREATE TABLE session_reviews (
     flashcard_id UUID NOT NULL REFERENCES flashcards(id) ON DELETE CASCADE,
     flashcard_review_id UUID REFERENCES flashcard_reviews(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    
+
     UNIQUE(study_session_id, flashcard_id)
 );
 
@@ -121,6 +126,7 @@ CREATE INDEX session_reviews_flashcard_id_idx ON session_reviews(flashcard_id);
 ```
 
 ### 1.6. system_logs
+
 ```sql
 CREATE TABLE system_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -139,26 +145,32 @@ CREATE INDEX system_logs_created_at_idx ON system_logs(created_at);
 ## 2. Relacje
 
 1. **users → flashcards**: Jeden-do-wielu (1:N)
+
    - Użytkownik może mieć wiele fiszek
    - Każda fiszka należy do jednego użytkownika
 
 2. **flashcards → flashcard_reviews**: Jeden-do-wielu (1:N)
+
    - Fiszka może mieć wiele przeglądów
    - Każdy przegląd dotyczy jednej fiszki
 
 3. **users → study_sessions**: Jeden-do-wielu (1:N)
+
    - Użytkownik może mieć wiele sesji nauki
    - Każda sesja nauki należy do jednego użytkownika
 
 4. **study_sessions → session_reviews**: Jeden-do-wielu (1:N)
+
    - Sesja nauki może mieć wiele przeglądów
    - Każdy przegląd sesji należy do jednej sesji nauki
 
 5. **flashcards → session_reviews**: Jeden-do-wielu (1:N)
+
    - Fiszka może być przeglądana w wielu sesjach
    - Każdy przegląd sesji dotyczy jednej fiszki
 
 6. **flashcard_reviews → session_reviews**: Jeden-do-jednego (1:1)
+
    - Przegląd fiszki może być powiązany z jednym przeglądem sesji
    - Przegląd sesji może być powiązany z jednym przeglądem fiszki
 
@@ -187,82 +199,82 @@ ALTER TABLE session_reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE system_logs ENABLE ROW LEVEL SECURITY;
 
 -- Zasady dla users
-CREATE POLICY users_select_own ON users 
+CREATE POLICY users_select_own ON users
     FOR SELECT USING (auth.uid() = id);
-    
-CREATE POLICY users_update_own ON users 
+
+CREATE POLICY users_update_own ON users
     FOR UPDATE USING (auth.uid() = id);
 
 -- Zasady dla flashcards
-CREATE POLICY flashcards_select_own ON flashcards 
+CREATE POLICY flashcards_select_own ON flashcards
     FOR SELECT USING (auth.uid() = user_id);
-    
-CREATE POLICY flashcards_insert_own ON flashcards 
+
+CREATE POLICY flashcards_insert_own ON flashcards
     FOR INSERT WITH CHECK (auth.uid() = user_id);
-    
-CREATE POLICY flashcards_update_own ON flashcards 
+
+CREATE POLICY flashcards_update_own ON flashcards
     FOR UPDATE USING (auth.uid() = user_id);
-    
-CREATE POLICY flashcards_delete_own ON flashcards 
+
+CREATE POLICY flashcards_delete_own ON flashcards
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Zasady dla flashcard_reviews
-CREATE POLICY flashcard_reviews_select_own ON flashcard_reviews 
+CREATE POLICY flashcard_reviews_select_own ON flashcard_reviews
     FOR SELECT USING (
         auth.uid() = (SELECT user_id FROM flashcards WHERE id = flashcard_id)
     );
-    
-CREATE POLICY flashcard_reviews_insert_own ON flashcard_reviews 
+
+CREATE POLICY flashcard_reviews_insert_own ON flashcard_reviews
     FOR INSERT WITH CHECK (
         auth.uid() = (SELECT user_id FROM flashcards WHERE id = flashcard_id)
     );
-    
-CREATE POLICY flashcard_reviews_update_own ON flashcard_reviews 
+
+CREATE POLICY flashcard_reviews_update_own ON flashcard_reviews
     FOR UPDATE USING (
         auth.uid() = (SELECT user_id FROM flashcards WHERE id = flashcard_id)
     );
-    
-CREATE POLICY flashcard_reviews_delete_own ON flashcard_reviews 
+
+CREATE POLICY flashcard_reviews_delete_own ON flashcard_reviews
     FOR DELETE USING (
         auth.uid() = (SELECT user_id FROM flashcards WHERE id = flashcard_id)
     );
 
 -- Zasady dla study_sessions
-CREATE POLICY study_sessions_select_own ON study_sessions 
+CREATE POLICY study_sessions_select_own ON study_sessions
     FOR SELECT USING (auth.uid() = user_id);
-    
-CREATE POLICY study_sessions_insert_own ON study_sessions 
+
+CREATE POLICY study_sessions_insert_own ON study_sessions
     FOR INSERT WITH CHECK (auth.uid() = user_id);
-    
-CREATE POLICY study_sessions_update_own ON study_sessions 
+
+CREATE POLICY study_sessions_update_own ON study_sessions
     FOR UPDATE USING (auth.uid() = user_id);
-    
-CREATE POLICY study_sessions_delete_own ON study_sessions 
+
+CREATE POLICY study_sessions_delete_own ON study_sessions
     FOR DELETE USING (auth.uid() = user_id);
 
 -- Zasady dla session_reviews
-CREATE POLICY session_reviews_select_own ON session_reviews 
+CREATE POLICY session_reviews_select_own ON session_reviews
     FOR SELECT USING (
         auth.uid() = (
             SELECT user_id FROM study_sessions WHERE id = study_session_id
         )
     );
-    
-CREATE POLICY session_reviews_insert_own ON session_reviews 
+
+CREATE POLICY session_reviews_insert_own ON session_reviews
     FOR INSERT WITH CHECK (
         auth.uid() = (
             SELECT user_id FROM study_sessions WHERE id = study_session_id
         )
     );
-    
-CREATE POLICY session_reviews_update_own ON session_reviews 
+
+CREATE POLICY session_reviews_update_own ON session_reviews
     FOR UPDATE USING (
         auth.uid() = (
             SELECT user_id FROM study_sessions WHERE id = study_session_id
         )
     );
-    
-CREATE POLICY session_reviews_delete_own ON session_reviews 
+
+CREATE POLICY session_reviews_delete_own ON session_reviews
     FOR DELETE USING (
         auth.uid() = (
             SELECT user_id FROM study_sessions WHERE id = study_session_id
@@ -271,7 +283,7 @@ CREATE POLICY session_reviews_delete_own ON session_reviews
 
 -- Zasady dla system_logs
 -- Tylko administratorzy mają dostęp do logów
-CREATE POLICY system_logs_admin_select ON system_logs 
+CREATE POLICY system_logs_admin_select ON system_logs
     FOR SELECT USING (auth.uid() IN (
         SELECT id FROM users WHERE email LIKE '%@admin.com'
     ));
@@ -286,8 +298,8 @@ CREATE POLICY system_logs_admin_select ON system_logs
    - generation_time - czas generowania
    - parameters - parametry użyte podczas generowania
    - prompt - zastosowany prompt
-   
 3. **Algorytm SM-2**: Implementacja algorytmu SuperMemo 2 (SM-2) dla powtórek jest obsługiwana przez tabelę `flashcard_reviews`:
+
    - easiness_factor - współczynnik łatwości (minimum 1.3, domyślnie 2.5)
    - interval - interwał w dniach do następnej powtórki
    - repetitions - liczba powtórek

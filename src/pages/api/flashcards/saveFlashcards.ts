@@ -1,17 +1,19 @@
-import type { APIRoute } from 'astro';
-import { supabaseClient } from '../../../db/supabase.client';
-import type { ApproveFlashcardsCommand } from '../../../types';
-import { flashcardService } from '../../../lib/services/flashcard-service';
-import { loggerService } from '../../../lib/services/logger-service';
-import { z } from 'zod';
+import type { APIRoute } from "astro";
+import { supabaseClient } from "../../../db/supabase.client";
+import type { ApproveFlashcardsCommand } from "../../../types";
+import { flashcardService } from "../../../lib/services/flashcard-service";
+import { loggerService } from "../../../lib/services/logger-service";
+import { z } from "zod";
 
 // Validate AI metadata format
-const aiMetadataSchema = z.object({
-  wasEdited: z.boolean().optional(),
-  modified: z.boolean().optional(),
-  edited_at: z.string().optional(),
-  original_content: z.record(z.string()).optional(),
-}).optional();
+const aiMetadataSchema = z
+  .object({
+    wasEdited: z.boolean().optional(),
+    modified: z.boolean().optional(),
+    edited_at: z.string().optional(),
+    original_content: z.record(z.string()).optional(),
+  })
+  .optional();
 
 // Validate flashcard candidate format
 const flashcardCandidateSchema = z.object({
@@ -33,60 +35,57 @@ export const prerender = false;
 export const POST: APIRoute = async ({ request, locals }) => {
   // Użyj ID zalogowanego użytkownika
   const userId = locals.user?.id;
-  
+
   // Jeśli użytkownik nie jest zalogowany, zwróć błąd 401
   if (!userId) {
-    return new Response(
-      JSON.stringify({ error: 'Unauthorized - Please log in to access this resource' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: "Unauthorized - Please log in to access this resource" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-  
+
   try {
     // Parse and validate request body
     const body = await request.json();
     const validationResult = approveFlashcardsCommandSchema.safeParse(body);
-    
+
     if (!validationResult.success) {
-      const errorMessage = 'Validation error in request body';
-      await loggerService.logError(userId, 'VALIDATION_FAILED', errorMessage);
-      
+      const errorMessage = "Validation error in request body";
+      await loggerService.logError(userId, "VALIDATION_FAILED", errorMessage);
+
       return new Response(
-        JSON.stringify({ 
-          error: errorMessage, 
-          details: validationResult.error.format() 
+        JSON.stringify({
+          error: errorMessage,
+          details: validationResult.error.format(),
         }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }
-    
+
     const command = validationResult.data as ApproveFlashcardsCommand;
-    
+
     // Approve and save flashcards, passing the authenticated Supabase client
     const result = await flashcardService.approveFlashcards(command, userId, locals.supabase);
-    
+
     // Return response
-    return new Response(
-      JSON.stringify(result),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify(result), { status: 200, headers: { "Content-Type": "application/json" } });
   } catch (error) {
-    console.error('Error in /api/flashcards/saveFlashcards:', error);
-    
+    console.error("Error in /api/flashcards/saveFlashcards:", error);
+
     // Log the error
-    let errorCode = 'INTERNAL_ERROR';
-    let errorMessage = 'An internal server error occurred';
-    
+    const errorCode = "INTERNAL_ERROR";
+    let errorMessage = "An internal server error occurred";
+
     if (error instanceof Error) {
       errorMessage = error.message;
     }
-    
+
     await loggerService.logError(userId, errorCode, errorMessage);
-    
+
     // Return error response
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
-    );
+    return new Response(JSON.stringify({ error: errorMessage }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
-}; 
+};

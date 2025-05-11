@@ -63,4 +63,4 @@ graph TD
     class LoginPage,RegisterPage,ForgotPasswordPage,ResetPasswordPage page
     class MainLayout,AuthLayout,Navigation layout
     class AuthProvider,UseAuth,SupabaseClient provider
-``` 
+```

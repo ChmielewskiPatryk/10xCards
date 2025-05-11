@@ -1,4 +1,4 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute } from "astro";
 
 export const prerender = false;
 
@@ -6,31 +6,31 @@ export const GET: APIRoute = async ({ locals }) => {
   try {
     if (!locals.user) {
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           authenticated: false,
-          user: null
+          user: null,
         }),
-        { status: 200, headers: { 'Content-Type': 'application/json' } }
+        { status: 200, headers: { "Content-Type": "application/json" } }
       );
     }
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         authenticated: true,
-        user: locals.user
+        user: locals.user,
       }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
+      { status: 200, headers: { "Content-Type": "application/json" } }
     );
   } catch (err) {
-    console.error('Error getting user data:', err);
-    
+    console.error("Error getting user data:", err);
+
     return new Response(
-      JSON.stringify({ 
-        error: 'Internal Server Error',
+      JSON.stringify({
+        error: "Internal Server Error",
         authenticated: false,
-        user: null
+        user: null,
       }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}; 
+};

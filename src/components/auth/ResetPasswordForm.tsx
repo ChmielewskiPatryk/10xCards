@@ -1,21 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { supabaseClient } from '../../db/supabase.client';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { supabaseClient } from "../../db/supabase.client";
 
-const resetPasswordSchema = z.object({
-  password: z
-    .string()
-    .min(8, 'Hasło musi mieć co najmniej 8 znaków')
-    .regex(/[A-Z]/, 'Hasło musi zawierać co najmniej jedną wielką literę')
-    .regex(/[a-z]/, 'Hasło musi zawierać co najmniej jedną małą literę')
-    .regex(/[0-9]/, 'Hasło musi zawierać co najmniej jedną cyfrę'),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Hasła nie są identyczne',
-  path: ['confirmPassword'],
-});
+const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Hasło musi mieć co najmniej 8 znaków")
+      .regex(/[A-Z]/, "Hasło musi zawierać co najmniej jedną wielką literę")
+      .regex(/[a-z]/, "Hasło musi zawierać co najmniej jedną małą literę")
+      .regex(/[0-9]/, "Hasło musi zawierać co najmniej jedną cyfrę"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Hasła nie są identyczne",
+    path: ["confirmPassword"],
+  });
 
 type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 
@@ -36,16 +38,16 @@ export default function ResetPasswordForm() {
   useEffect(() => {
     // Check if we have the reset token in the URL
     const hash = window.location.hash;
-    if (hash && hash.includes('access_token')) {
+    if (hash && hash.includes("access_token")) {
       setHasToken(true);
     } else {
-      setError('Nieprawidłowy lub wygasły link resetowania hasła.');
+      setError("Nieprawidłowy lub wygasły link resetowania hasła.");
     }
   }, []);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!hasToken) {
-      setError('Nieprawidłowy lub wygasły link resetowania hasła.');
+      setError("Nieprawidłowy lub wygasły link resetowania hasła.");
       return;
     }
 
@@ -58,12 +60,12 @@ export default function ResetPasswordForm() {
       });
 
       if (error) {
-        throw new Error(error.message || 'Wystąpił błąd podczas resetowania hasła');
+        throw new Error(error.message || "Wystąpił błąd podczas resetowania hasła");
       }
 
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wystąpił błąd podczas resetowania hasła');
+      setError(err instanceof Error ? err.message : "Wystąpił błąd podczas resetowania hasła");
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +91,7 @@ export default function ResetPasswordForm() {
     return (
       <div className="text-center space-y-4">
         <div className="bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-300 p-3 rounded-md text-sm">
-          {error || 'Nieprawidłowy lub wygasły link resetowania hasła.'}
+          {error || "Nieprawidłowy lub wygasły link resetowania hasła."}
         </div>
         <a
           href="/auth/forgot-password"
@@ -114,14 +116,12 @@ export default function ResetPasswordForm() {
           Nowe hasło
         </label>
         <input
-          {...register('password')}
+          {...register("password")}
           type="password"
           id="password"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
         />
-        {errors.password && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
-        )}
+        {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>}
       </div>
 
       <div>
@@ -129,7 +129,7 @@ export default function ResetPasswordForm() {
           Potwierdź nowe hasło
         </label>
         <input
-          {...register('confirmPassword')}
+          {...register("confirmPassword")}
           type="password"
           id="confirmPassword"
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
@@ -144,8 +144,8 @@ export default function ResetPasswordForm() {
         disabled={isLoading}
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Przetwarzanie...' : 'Zapisz nowe hasło'}
+        {isLoading ? "Przetwarzanie..." : "Zapisz nowe hasło"}
       </button>
     </form>
   );
-} 
+}

@@ -8,6 +8,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "npx playwright test",
     "test:e2e:headed": "npx playwright test --headed",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
+    "lint:fix": "eslint --fix . --ext .js,.jsx,.ts,.tsx,.astro && prettier --write '**/*.{ts,tsx,js,jsx,astro,json,css,md}'",
     "dev": "astro dev",
     "dev:e2e": "astro dev --mode test",
     "build": "astro build"

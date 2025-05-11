@@ -1,9 +1,11 @@
 # API Endpoint Implementation Plan: POST /api/flashcards/generate
 
 ## 1. Przegląd punktu końcowego
+
 Endpoint służy do automatycznego generowania propozycji fiszek za pomocą AI na podstawie dostarczonego tekstu źródłowego. Użytkownik dostarcza tekst źródłowy, a system zwraca zestaw propozycji fiszek zawierających treść frontu, tyłu oraz metadane dotyczące procesu generowania przez AI.
 
 ## 2. Szczegóły żądania
+
 - **Metoda HTTP**: POST
 - **Struktura URL**: `/api/flashcards/generate`
 - **Parametry**:
@@ -22,7 +24,9 @@ Endpoint służy do automatycznego generowania propozycji fiszek za pomocą AI n
   ```
 
 ## 3. Wykorzystywane typy
+
 - **DTOs i Command Models**:
+
   - `GenerateFlashcardsCommand`: Model żądania
     ```typescript
     type GenerateFlashcardsCommand = {
@@ -32,7 +36,6 @@ Endpoint służy do automatycznego generowania propozycji fiszek za pomocą AI n
       };
     };
     ```
-  
   - `FlashcardCandidate`: Model pojedynczej propozycji fiszki
     ```typescript
     type FlashcardCandidate = {
@@ -45,7 +48,6 @@ Endpoint służy do automatycznego generowania propozycji fiszek za pomocą AI n
       };
     };
     ```
-  
   - `GenerateFlashcardsResponse`: Model odpowiedzi
     ```typescript
     type GenerateFlashcardsResponse = {
@@ -54,7 +56,9 @@ Endpoint służy do automatycznego generowania propozycji fiszek za pomocą AI n
     ```
 
 ## 4. Szczegóły odpowiedzi
+
 - **Kody statusu**:
+
   - `200 OK`: Pomyślne wygenerowanie propozycji fiszek
   - `400 Bad Request`: Nieprawidłowe dane wejściowe (np. tekst zbyt krótki)
   - `401 Unauthorized`: Użytkownik niezautoryzowany
@@ -79,6 +83,7 @@ Endpoint służy do automatycznego generowania propozycji fiszek za pomocą AI n
   ```
 
 ## 5. Przepływ danych
+
 1. Otrzymanie żądania POST z tekstem źródłowym i opcjonalnymi parametrami
 2. Walidacja danych wejściowych za pomocą Zod (minimum 1000 znaków, max 10000 znaków)
 3. Autoryzacja użytkownika za pomocą Supabase
@@ -87,16 +92,20 @@ Endpoint służy do automatycznego generowania propozycji fiszek za pomocą AI n
 6. Zwrócenie sformatowanej odpowiedzi
 
 Kluczowe interakcje:
+
 - **Autentykacja**: Supabase dla weryfikacji JWT i dostępu do danych użytkownika
 - **Zewnętrzna usługa AI**: Openrouter.ai dla generowania fiszek
 - **Baza danych**: Opcjonalnie sprawdzenie limitów użycia (dla rate limiting)
 
 ## 6. Względy bezpieczeństwa
+
 - **Autentykacja**:
+
   - Wykorzystanie Supabase Auth do weryfikacji JWT użytkownika
   - Dostęp tylko dla zalogowanych użytkowników
 
 - **Autoryzacja**:
+
   - Użytkownicy mogą generować fiszki tylko dla własnych kont
 
 - **Walidacja danych**:
@@ -104,17 +113,21 @@ Kluczowe interakcje:
   - Minimalna wymagana długość tekstu źródłowego (np. 1000 znaków)
 
 ## 7. Obsługa błędów
+
 - **400 Bad Request**:
+
   - Tekst źródłowy jest pusty
   - Tekst źródłowy jest zbyt krótki (np. < 50 znaków)
   - Parametr max_flashcards poza dozwolonym zakresem (np. < 1 lub > 30)
 
 - **401 Unauthorized**:
+
   - Brak tokenu JWT
   - Nieważny token JWT
   - Token JWT wygasł
 
 - **429 Too Many Requests**:
+
   - Przekroczono dzienny limit zapytań do AI dla użytkownika
   - Przekroczono globalny limit zapytań do usługi Openrouter.ai
 
@@ -124,15 +137,19 @@ Kluczowe interakcje:
   - Nieoczekiwany błąd serwera
 
 **Obsługa**:
+
 - Wszystkie błędy powinny być odpowiednio zalogowane (z kontekstem, ale bez danych wrażliwych)
 - Odpowiedzi błędów powinny zawierać czytelne komunikaty dla użytkownika
 
 ## 8. Rozważania dotyczące wydajności
+
 - **Potencjalne wąskie gardła**:
+
   - Czas odpowiedzi zewnętrznej usługi AI (Openrouter.ai)
   - Limity przepustowości usługi Openrouter.ai
 
 - **Strategie optymalizacji**:
+
   - Buforowanie podobnych zapytań (z uwzględnieniem prywatności)
   - Implementacja asynchronicznego przetwarzania dla długich tekstów
   - Użycie mechanizmu kolejkowego dla zapytań w przypadku wysokiego obciążenia
@@ -146,6 +163,7 @@ Kluczowe interakcje:
 ## 9. Etapy wdrożenia
 
 ### 9.1. Utworzenie struktury plików
+
 1. Utworzenie pliku obsługi endpointu: `src/pages/api/flashcards/generate.ts`
 2. Implementacja schematów walidacji Zod
 3. Utworzenie lub rozszerzenie serwisu AI: `src/lib/services/generate-service.ts`

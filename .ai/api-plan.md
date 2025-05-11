@@ -14,6 +14,7 @@
 ### Authentication
 
 Authentication is handled by Supabase Auth service. The frontend will interact directly with Supabase for:
+
 - Registration
 - Login/Logout
 - Password reset
@@ -22,6 +23,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
 ### Flashcards
 
 #### GET /api/flashcards
+
 - **Description**: Retrieve user's flashcards with optional filtering
 - **Query Parameters**:
   - `page` (integer): Page number for pagination
@@ -57,6 +59,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### GET /api/flashcards/:id
+
 - **Description**: Retrieve a specific flashcard
 - **Response**:
   ```json
@@ -77,6 +80,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### POST /api/flashcards
+
 - **Description**: Create a new flashcard
 - **Request**:
   ```json
@@ -104,6 +108,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### PUT /api/flashcards/:id
+
 - **Description**: Update an existing flashcard
 - **Request**:
   ```json
@@ -132,6 +137,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### DELETE /api/flashcards/:id
+
 - **Description**: Delete a flashcard
 - **Success**: 204 No Content
 - **Errors**:
@@ -142,6 +148,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
 ### Flashcard Candidates (AI Generation)
 
 #### POST /api/flashcards/generate
+
 - **Description**: Generate flashcard candidates using AI
 - **Request**:
   ```json
@@ -176,6 +183,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### POST /api/flashcards/
+
 - **Description**: Approve and save flashcards
 - **Request**:
   ```json
@@ -183,7 +191,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
     "flashcards": [
       {
         "front_content": "string", // Can be modified from original
-        "back_content": "string",  // Can be modified from original
+        "back_content": "string", // Can be modified from original
         "ai_metadata": "object"
       }
     ]
@@ -215,6 +223,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
 ### Study Sessions
 
 #### POST /api/study-sessions
+
 - **Description**: Start a new study session
 - **Response**:
   ```json
@@ -232,6 +241,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### GET /api/study-sessions
+
 - **Description**: Get user's study session history
 - **Query Parameters**:
   - `page` (integer): Page number
@@ -264,6 +274,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### GET /api/study-sessions/:id
+
 - **Description**: Get details of a specific study session
 - **Response**:
   ```json
@@ -291,6 +302,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### PUT /api/study-sessions/:id
+
 - **Description**: Update a study session (typically to end it)
 - **Request**:
   ```json
@@ -316,6 +328,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### GET /api/study-sessions/:id/next-flashcard
+
 - **Description**: Get the next flashcard to review in a study session
 - **Response**:
   ```json
@@ -337,6 +350,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
 ### Flashcard Reviews
 
 #### POST /api/flashcard-reviews
+
 - **Description**: Submit a flashcard review during a study session
 - **Request**:
   ```json
@@ -367,6 +381,7 @@ Authentication is handled by Supabase Auth service. The frontend will interact d
   - 500 Internal Server Error
 
 #### GET /api/flashcard-reviews
+
 - **Description**: Get review history for flashcards
 - **Query Parameters**:
   - `flashcard_id` (uuid): Filter by flashcard
@@ -417,6 +432,7 @@ Authorization is enforced through:
    - All tables have appropriate RLS policies
 
 Implementation details:
+
 - Frontend will use Supabase client library to handle authentication
 - API will validate JWT tokens and map to user IDs
 - Database RLS policies ensure users can only access their own data even if API validation is bypassed
@@ -426,9 +442,11 @@ Implementation details:
 ### Validation Rules
 
 1. **Users**
+
    - Email must match regex: `^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$`
 
 2. **Flashcards**
+
    - `front_content` and `back_content` maximum length: 200 characters
    - `source` must be one of: 'manual', 'ai', 'semi_ai'
    - If `source` is 'ai' or 'semi_ai', `ai_metadata` must not be null
@@ -440,17 +458,20 @@ Implementation details:
 ### Business Logic Implementation
 
 1. **AI Flashcard Generation**
+
    - Input text validation (minimum length)
    - Call to external AI service via Openrouter.ai
    - Processing and formatting AI response into candidate flashcards
    - Temporary storage of candidates until approval
 
 2. **Flashcard Source Tracking**
+
    - New flashcards created manually get source='manual'
    - New flashcards approved from AI get source='ai'
    - When editing AI-generated flashcards, source changes to 'semi_ai'
 
 3. **SM-2 Spaced Repetition Algorithm**
+
    - Implemented in POST /api/flashcard-reviews endpoint
    - Calculates new values for:
      - `easiness_factor`
@@ -462,4 +483,4 @@ Implementation details:
 4. **Study Session Management**
    - Automatically tracks `cards_reviewed` count
    - Provides next flashcards due for review
-   - Links flashcard reviews to study sessions 
+   - Links flashcard reviews to study sessions

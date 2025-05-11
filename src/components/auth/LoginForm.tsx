@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 const loginSchema = z.object({
-  email: z.string().email('Nieprawidłowy adres email'),
-  password: z.string().min(8, 'Hasło musi mieć co najmniej 8 znaków'),
+  email: z.string().email("Nieprawidłowy adres email"),
+  password: z.string().min(8, "Hasło musi mieć co najmniej 8 znaków"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -14,7 +14,7 @@ interface LoginFormProps {
   redirectUrl?: string;
 }
 
-export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
+export default function LoginForm({ redirectUrl = "/" }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,10 +30,10 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -41,15 +41,15 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
       const result = await response.json();
 
       if (!result.success) {
-        setError(result.error || 'Wystąpił błąd podczas logowania');
+        setError(result.error || "Wystąpił błąd podczas logowania");
         return;
       }
 
       // Pomyślne logowanie - przekieruj użytkownika
       window.location.href = redirectUrl;
     } catch (err) {
-      console.error('Błąd logowania:', err);
-      setError('Wystąpił błąd podczas logowania. Spróbuj ponownie później.');
+      console.error("Błąd logowania:", err);
+      setError("Wystąpił błąd podczas logowania. Spróbuj ponownie później.");
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +58,10 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" data-testid="login-form">
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-300 p-3 rounded-md text-sm" data-testid="login-error">
+        <div
+          className="bg-red-50 dark:bg-red-900/50 text-red-600 dark:text-red-300 p-3 rounded-md text-sm"
+          data-testid="login-error"
+        >
           {error}
         </div>
       )}
@@ -68,7 +71,7 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
           Email
         </label>
         <input
-          {...register('email')}
+          {...register("email")}
           type="email"
           id="email"
           data-testid="email-input"
@@ -76,7 +79,9 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
           placeholder="twoj@email.com"
         />
         {errors.email && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400" data-testid="email-error">{errors.email.message}</p>
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400" data-testid="email-error">
+            {errors.email.message}
+          </p>
         )}
       </div>
 
@@ -85,7 +90,7 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
           Hasło
         </label>
         <input
-          {...register('password')}
+          {...register("password")}
           type="password"
           id="password"
           data-testid="password-input"
@@ -93,7 +98,9 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
           placeholder="••••••••"
         />
         {errors.password && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400" data-testid="password-error">{errors.password.message}</p>
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400" data-testid="password-error">
+            {errors.password.message}
+          </p>
         )}
       </div>
 
@@ -120,8 +127,8 @@ export default function LoginForm({ redirectUrl = '/' }: LoginFormProps) {
         data-testid="login-button"
         className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isLoading ? 'Logowanie...' : 'Zaloguj się'}
+        {isLoading ? "Logowanie..." : "Zaloguj się"}
       </button>
     </form>
   );
-} 
+}
