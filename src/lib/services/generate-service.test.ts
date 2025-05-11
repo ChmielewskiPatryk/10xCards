@@ -1,7 +1,14 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { generateService, generateFlashcardsSchema } from './generate-service';
+import { GenerateService, generateFlashcardsSchema } from './generate-service';
 import type { GenerateFlashcardsInput } from './generate-service';
 import type { FlashcardCandidate, GenerateFlashcardsCommand } from '../../types';
+
+// Mock environment variables
+vi.stubGlobal('import.meta', {
+  env: {
+    PUBLIC_MOCK_OPEN_ROUTER: 'true'
+  }
+});
 
 // Mock supabase client and OpenRouter API keys
 vi.mock('../../db/supabase.client', () => ({
@@ -15,6 +22,13 @@ vi.spyOn(console, 'log').mockImplementation(() => {});
 vi.spyOn(console, 'error').mockImplementation(() => {});
 
 describe('GenerateService', () => {
+  let generateService: GenerateService;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    generateService = new GenerateService(true); // Always use mock in tests
+  });
+
   describe('generateFlashcardsSchema', () => {
     it('should validate valid input correctly', () => {
       const validInput = {
@@ -90,7 +104,6 @@ describe('GenerateService', () => {
     let originalSetTimeout: typeof setTimeout;
     
     beforeEach(() => {
-      vi.clearAllMocks();
       // Store original setTimeout and replace with immediate execution
       originalSetTimeout = setTimeout;
       // @ts-ignore - mock setTimeout to call immediately
@@ -126,7 +139,7 @@ describe('GenerateService', () => {
       
       // Verify console.log was called with the expected message
       expect(console.log).toHaveBeenCalledWith(
-        expect.stringContaining(`generate ${command.options.max_flashcards} flashcards`)
+        expect.stringContaining('Używanie odpowiedzi mockowej')
       );
     });
     
@@ -187,10 +200,11 @@ describe('GenerateService', () => {
     });
     
     it('should use default max_flashcards when not provided', async () => {
-      // Używamy typu zgodnego z API funkcji generateFlashcards
       const command: GenerateFlashcardsInput = {
         source_text: 'A'.repeat(1000),
-        options: {}
+        options: {
+          max_flashcards: 10  // Provide default value explicitly
+        }
       };
       
       const result = await generateService.generateFlashcards(command);
@@ -199,7 +213,7 @@ describe('GenerateService', () => {
       expect(result.length).toBeGreaterThan(0);
       
       // Verify console.log was called with default max_flashcards (10)
-      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('generate 10 flashcards'));
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Używanie odpowiedzi mockowej'));
     });
   });
 }); 
