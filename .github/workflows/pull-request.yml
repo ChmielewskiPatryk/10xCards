@@ -72,16 +72,17 @@ jobs:
         
       - name: Run E2E tests
         run: npm run test:e2e
-        env:
-          PUBLIC_SUPABASE_URL: ${ secrets.PUBLIC_SUPABASE_URL }
-          PUBLIC_SUPABASE_KEY: ${ secrets.PUBLIC_SUPABASE_KEY }
-          OPENROUTER_API_KEY: ${ secrets.OPENROUTER_API_KEY }
-          E2E_USERNAME_ID: ${ secrets.E2E_USERNAME_ID }
-          E2E_USERNAME: ${ secrets.E2E_USERNAME }
-          E2E_PASSWORD: ${ secrets.E2E_PASSWORD }
-          PUBLIC_MOCK_OPEN_ROUTER: ${ secrets.PUBLIC_MOCK_OPEN_ROUTER }
-          PUBLIC_SUPABASE_SERVICE_ROLE_KEY: ${ secrets.PUBLIC_SUPABASE_SERVICE_ROLE_KEY }
         
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.PUBLIC_SUPABASE_UR }}
+          PUBLIC_SUPABASE_KEY: ${{ secrets.PUBLIC_SUPABASE_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          E2E_USERNAME_ID: ${{ secrets.E2E_USERNAME_ID }}
+          E2E_USERNAME: ${{ secrets.E2E_USERNAME }}
+          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          PUBLIC_MOCK_OPEN_ROUTER: ${{ vars.PUBLIC_MOCK_OPEN_ROUTER }}
+          PUBLIC_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.PUBLIC_SUPABASE_SERVICE_ROLE_KEY }}
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: always()
