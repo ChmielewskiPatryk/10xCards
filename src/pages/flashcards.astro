@@ -1,0 +1,22 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import FlashcardsPage from "@/components/FlashcardsPage";
+import { supabaseClient } from "../db/supabase.client";
+
+// Get the current session
+const {
+  data: { session },
+} = await supabaseClient.auth.getSession();
+
+// Get user from Astro.locals context
+const { user } = Astro.locals;
+
+// If user is not logged in, redirect to login page
+if (!user) {
+  return Astro.redirect("/auth/login");
+}
+---
+
+<MainLayout title="Moje fiszki">
+  <FlashcardsPage client:load />
+</MainLayout>

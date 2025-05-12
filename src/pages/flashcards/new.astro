@@ -1,0 +1,14 @@
+---
+import MainLayout from "../../layouts/MainLayout.astro";
+import ManualFlashcardForm from "../../components/ManualFlashcardForm";
+---
+
+<MainLayout title="Ręczne tworzenie fiszek - 10xCards">
+  <div class="container mx-auto py-8">
+    <h1 class="text-3xl font-bold mb-6">Ręczne tworzenie fiszek</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-6">
+      Wprowadź treść dla przedniej i tylnej strony fiszki. Maksymalna długość każdego pola to 200 znaków.
+    </p>
+    <ManualFlashcardForm client:load />
+  </div>
+</MainLayout>

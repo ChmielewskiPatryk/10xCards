@@ -1,0 +1,33 @@
+O – OCP (Open Close Principle – Zasada Otwarte-Zamknięte)
+Zasada Otwarte-Zamknięte (OCP) jest drugą z pięciu zasad SOLID i odgrywa ważną rolę w projektowaniu elastycznego oprogramowania. Mówi ona o tym, że oprogramowanie powinno być otwarte na rozszerzenia, ale zamknięte na modyfikacje. Innymi słowy, powinno być możliwe dodawanie nowych funkcjonalności do systemu bez konieczności modyfikowania istniejącego kodu. Ta zasada skupia się na promowaniu projektowania oprogramowania, które może ewoluować w czasie, przy minimalnym wpływie na już istniejący kod.
+
+Implementacja OCP w praktyce zachęca do stosowania abstrakcji i polimorfizmu. Poprzez definiowanie ogólnych interfejsów lub klas bazowych, które określają wymagane zachowania, deweloperzy mogą następnie rozszerzać te abstrakcje za pomocą nowych klas, które implementują te zachowania w specyficzny sposób. To pozwala na dodawanie nowych funkcjonalności do systemu przez rozszerzenie, nie zaś modyfikację istniejącego kodu.
+
+OCP ma znaczący wpływ na cykl życia oprogramowania. Przestrzeganie tej zasady może znacząco zmniejszyć ryzyko wprowadzania błędów podczas rozbudowy systemu, ponieważ nowe funkcjonalności są dodawane jako nowe klasy, nie zakłócając działania istniejących komponentów.
+
+Zastosowanie OCP sprzyja również ponownemu wykorzystaniu kodu. Poprzez projektowanie systemów w sposób, który pozwala na łatwe rozszerzanie poprzez dodawanie nowych klas, zamiast modyfikowania istniejących, deweloperzy mogą ponownie wykorzystywać ogólne komponenty w różnych kontekstach. To z kolei prowadzi do bardziej modułowej i elastycznej architektury oprogramowania, która może być łatwiej utrzymana i rozwijana.
+
+Przykładem zastosowania OCP może być system raportowania, gdzie różne typy raportów wymagają różnych algorytmów generowania. Zamiast modyfikować klasę raportowania za każdym razem, gdy potrzebny jest nowy typ raportu, można zdefiniować ogólny interfejs raportu i rozszerzyć go za pomocą nowych klas dla każdego typu raportu. Dzięki temu, dodanie nowego typu raportu nie wymaga zmian w istniejącym kodzie systemu raportowania.
+
+L – LSP (Liskov Substitution Principle – Zasada Podstawienia Liskov)
+Zasada Podstawienia Liskov (LSP), trzecia z zasad SOLID, odgrywa kluczową rolę w utrzymaniu spójności i niezawodności w hierarchiach dziedziczenia oprogramowania. LSP stwierdza, że obiekty w programie powinny być zastępowalne przez instancje ich podtypów bez wpływu na poprawność działania programu. Innymi słowy, jeśli klasa S jest podtypem klasy T, to obiekty klasy T w programie powinny móc zostać zastąpione obiektami klasy S bez zmiany pożądanych właściwości tego programu.
+
+Zasada ta podkreśla znaczenie projektowania interfejsów i klas bazowych w sposób, który nie narzuca ograniczeń na klasy dziedziczące, które mogłyby naruszyć funkcjonalność lub oczekiwane zachowanie. Dzięki przestrzeganiu LSP systemy stają się bardziej modułowe, ponieważ komponenty mogą być łatwiej zastąpione lub rozszerzone przez nowe implementacje bez ryzyka nieoczekiwanych efektów ubocznych.
+
+Implementacja LSP w praktyce wymaga starannego projektowania i przemyślanej architektury systemu. Deweloperzy muszą zapewnić, że każda klasa dziedzicząca rozszerza funkcjonalność klasy bazowej, nie zmieniając jej pierwotnego zachowania. Obejmuje to unikanie sytuacji, w których metody dziedziczone są nadpisywane w sposób, który zmienia ich działanie, lub wprowadzanie nowych wymagań dla danych wejściowych, które nie były obecne w klasie bazowej.
+
+Przestrzeganie LSP sprzyja również zwiększeniu ponownego wykorzystania kodu, ponieważ klasy mogą być swobodnie zamieniane i ponownie wykorzystywane w różnych częściach systemu bez obawy o zniszczenie jego integralności.
+
+Jednym z praktycznych przykładów zastosowania LSP jest system obsługi plików, gdzie klasy reprezentujące różne typy plików (np. pliki tekstowe, obrazy, dokumenty) dziedziczą z ogólnej klasy „Plik”. Jeśli wszystkie te klasy podtypów zachowują spójność z klasą bazową pod względem interfejsu i zachowania, mogą być używane zamiennie przez system bez wpływu na jego działanie, co pozwala na jego łatwą rozbudowę o obsługę nowych typów plików.
+
+I – ISP (Interface Segregation Principle – Zasada Segregacji Interfejsów)
+Zasady Segregacji Interfejsów (ISP), czwarta z zasad SOLID, koncentruje się na projektowaniu czystych interfejsów, które promują spójność i minimalizm. ISP głosi, że klienci (tj. klasy, które implementują interfejsy) nie powinny być zmuszani do zależności od interfejsów, których nie używają. Innymi słowy, zamiast jednego dużego interfejsu oferującego wiele różnych funkcji, powinno się tworzyć wiele mniejszych, bardziej specyficznych interfejsów, tak, aby klasy implementujące je używały tylko tych metod, które są dla nich potrzebne.
+
+Implementacja ISP w praktyce oznacza projektowanie z myślą o modularności i elastyczności. Poprzez segregację interfejsów, system staje się bardziej elastyczny, ponieważ poszczególne komponenty mogą być rozwijane i modyfikowane niezależnie od siebie, co zmniejsza ryzyko nieoczekiwanych efektów ubocznych wynikających z nadmiernego sprzężenia. Klasy nie są obarczane nadmiarowymi metodami, które nie są dla nich istotne, co prowadzi do czystszego i bardziej zrozumiałego kodu.
+
+Ta zasada SOLID ma również pozytywny wpływ na testowalność oprogramowania. Kiedy klasy zależą tylko od tych interfejsów, które są dla nich niezbędne, testowanie staje się prostsze i bardziej ukierunkowane. Deweloperzy mogą skupić się na testowaniu konkretnej funkcjonalności, bez potrzeby angażowania niezwiązanych z nią interfejsów, co ułatwia identyfikację i rozwiązywanie problemów.
+
+D – DIP (Dependency Inversion Principle – Zasada Odwrócenia Zależności)
+Zasada Odwrócenia Zależności (DIP), piąta i ostatnia z zasad SOLID, odgrywa kluczową rolę w tworzeniu zdecentralizowanych systemów, które są odporne na zmiany. DIP wskazuje na to, że moduły wysokiego poziomu nie powinny zależeć od modułów niskiego poziomu, ale oba rodzaje modułów powinny zależeć od abstrakcji. W praktyce oznacza to, że projektowanie systemów powinno odbywać się od ogółu do szczegółu, promując zależności od interfejsów lub klas abstrakcyjnych, a nie od konkretnych implementacji.
+
+Implementacja DIP sprzyja osiągnięciu luźnego sprzężenia między komponentami systemu, co zwiększa modułowość i elastyczność kodu. Dzięki odwróceniu tradycyjnej zależności, gdzie klasy wysokiego poziomu bezpośrednio odwoływały się do klas niskiego poziomu, systemy stają się bardziej odporne na zmiany w implementacji modułów niskiego poziomu, ponieważ te zmiany nie wpływają bezpośrednio na moduły wysokiego poziomu.

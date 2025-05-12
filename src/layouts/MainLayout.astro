@@ -1,0 +1,59 @@
+---
+import "../styles/global.css";
+import { Toaster } from "../components/ui/toast";
+import DashboardHeader from "../components/dashboard/DashboardHeader";
+import DashboardFooter from "../components/dashboard/DashboardFooter";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "10xCards" } = Astro.props;
+
+// Get user from Astro.locals if available
+const user = Astro.locals.user || null;
+---
+
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body class="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div class="min-h-screen flex flex-col">
+      {user && <DashboardHeader user={user} client:load />}
+      {
+        !user && (
+          <header class="border-b border-gray-200 dark:border-gray-800">
+            <div class="container mx-auto px-4">
+              <div class="flex items-center justify-between py-4">
+                <a href="/" class="flex items-center group">
+                  <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 dark:bg-blue-700 shadow-md group-hover:shadow-lg transition-shadow">
+                    <span class="text-xl font-bold text-white">10x</span>
+                  </div>
+                  <h1 class="ml-2 text-2xl font-semibold text-gray-800 dark:text-white">
+                    Cards
+                    <span class="ml-1 text-xs align-top bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-1.5 py-0.5 rounded">
+                      Beta
+                    </span>
+                  </h1>
+                </a>
+              </div>
+            </div>
+          </header>
+        )
+      }
+
+      <main class="flex-grow container mx-auto px-4 py-8">
+        <slot />
+      </main>
+
+      <DashboardFooter client:load />
+    </div>
+    <Toaster client:load />
+  </body>
+</html>
